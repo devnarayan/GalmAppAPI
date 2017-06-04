@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="d6e67b2180db4b819786ef6bcd318838" Name="Diagram1" ZoomLevel="59">
+        <EntityTypeShape EntityType="GalmAppDBModel.Booking" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="GalmAppDBModel.FAQ" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="GalmAppDBModel.Package" Width="1.5" PointX="3" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="GalmAppDBModel.Service" Width="1.5" PointX="0.75" PointY="2.375" IsExpanded="true" />
+        <AssociationConnector Association="GalmAppDBModel.FK_Booking_Service" ManuallyRouted="false" />
+        <AssociationConnector Association="GalmAppDBModel.FK_Package_Service" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="GalmAppDBModel.AspNetRole" Width="1.5" PointX="5.375" PointY="5.625" />
+        <EntityTypeShape EntityType="GalmAppDBModel.AspNetUserClaim" Width="1.5" PointX="9.875" PointY="4.125" />
+        <EntityTypeShape EntityType="GalmAppDBModel.AspNetUserLogin" Width="1.5" PointX="9.875" PointY="6.875" />
+        <EntityTypeShape EntityType="GalmAppDBModel.AspNetUser" Width="1.5" PointX="7.625" PointY="4" />
+        <AssociationConnector Association="GalmAppDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" />
+        <AssociationConnector Association="GalmAppDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" />
+        <AssociationConnector Association="GalmAppDBModel.AspNetUserRoles" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
