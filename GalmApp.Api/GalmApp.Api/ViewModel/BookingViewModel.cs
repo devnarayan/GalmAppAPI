@@ -9,7 +9,7 @@ namespace GalmApp.Api.ViewModel
     {
         public int BookingId { get; set; }
         public int ServiceId { get; set; }
-        public Nullable<int> UserId { get; set; }
+        public string UserName { get; set; }
         public Nullable<System.DateTime> BookingDate { get; set; }
     }
 }

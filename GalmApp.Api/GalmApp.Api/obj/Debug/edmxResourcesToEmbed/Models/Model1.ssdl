@@ -54,6 +54,8 @@
     <Property Name="Address2" Type="nvarchar" MaxLength="256" />
     <Property Name="DeviceType" Type="nvarchar" MaxLength="50" />
     <Property Name="DeviceToken" Type="text" />
+    <Property Name="RegisterOn" Type="datetime" />
+    <Property Name="LastLogOn" Type="datetime" />
   </EntityType>
   <EntityType Name="Booking">
     <Key>
@@ -61,7 +63,7 @@
     </Key>
     <Property Name="BookingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="ServiceId" Type="int" Nullable="false" />
-    <Property Name="UserId" Type="int" />
+    <Property Name="UserName" Type="nvarchar" MaxLength="256" />
     <Property Name="BookingDate" Type="datetime" />
   </EntityType>
   <EntityType Name="FAQ">

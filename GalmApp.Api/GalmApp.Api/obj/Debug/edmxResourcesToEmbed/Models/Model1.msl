@@ -4,9 +4,9 @@
     <EntitySetMapping Name="Bookings">
       <EntityTypeMapping TypeName="GalmAppDBModel.Booking">
         <MappingFragment StoreEntitySet="Booking">
+          <ScalarProperty Name="UserName" ColumnName="UserName" />
           <ScalarProperty Name="BookingId" ColumnName="BookingId" />
           <ScalarProperty Name="ServiceId" ColumnName="ServiceId" />
-          <ScalarProperty Name="UserId" ColumnName="UserId" />
           <ScalarProperty Name="BookingDate" ColumnName="BookingDate" />
         </MappingFragment>
       </EntityTypeMapping>
@@ -75,6 +75,8 @@
     <EntitySetMapping Name="AspNetUsers">
       <EntityTypeMapping TypeName="GalmAppDBModel.AspNetUser">
         <MappingFragment StoreEntitySet="AspNetUsers">
+          <ScalarProperty Name="LastLogOn" ColumnName="LastLogOn" />
+          <ScalarProperty Name="RegisterOn" ColumnName="RegisterOn" />
           <ScalarProperty Name="DeviceToken" ColumnName="DeviceToken" />
           <ScalarProperty Name="DeviceType" ColumnName="DeviceType" />
           <ScalarProperty Name="Address2" ColumnName="Address2" />

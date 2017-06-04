@@ -6,9 +6,9 @@
     </Key>
     <Property Name="BookingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
     <Property Name="ServiceId" Type="Int32" Nullable="false" />
-    <Property Name="UserId" Type="Int32" />
     <Property Name="BookingDate" Type="DateTime" Precision="3" />
     <NavigationProperty Name="Service" Relationship="Self.FK_Booking_Service" FromRole="Booking" ToRole="Service" />
+    <Property Name="UserName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
   </EntityType>
   <EntityType Name="FAQ">
     <Key>
@@ -150,6 +150,8 @@
     <NavigationProperty Name="AspNetUserClaims" Relationship="GalmAppDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" FromRole="AspNetUser" ToRole="AspNetUserClaim" />
     <NavigationProperty Name="AspNetUserLogins" Relationship="GalmAppDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" FromRole="AspNetUser" ToRole="AspNetUserLogin" />
     <NavigationProperty Name="AspNetRoles" Relationship="GalmAppDBModel.AspNetUserRoles" FromRole="AspNetUser" ToRole="AspNetRole" />
+    <Property Name="RegisterOn" Type="DateTime" Precision="3" />
+    <Property Name="LastLogOn" Type="DateTime" Precision="3" />
   </EntityType>
   <Association Name="FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId">
     <End Type="GalmAppDBModel.AspNetUser" Role="AspNetUser" Multiplicity="1">

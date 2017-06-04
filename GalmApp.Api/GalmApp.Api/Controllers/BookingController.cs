@@ -19,6 +19,7 @@ namespace GalmApp.Api.Controllers
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
+                if (model.BookingDate == null) model.BookingDate = DateTime.UtcNow;
                 AutoMapper.Mapper.CreateMap<BookingViewModel, Booking>();
                 var book= AutoMapper.Mapper.Map<Booking>(model);
                 dbContext.Bookings.Add(book);
@@ -28,11 +29,11 @@ namespace GalmApp.Api.Controllers
         }
 
         [Route("GetBookingByUser")]
-        public IHttpActionResult GetBooking(int userId)
+        public IHttpActionResult GetBooking(string userName)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
-                var data= dbContext.Bookings.Where(st => st.UserId == userId).ToList();
+                var data = dbContext.Bookings.Where(st => st.UserName == userName).ToList();
                 AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>();
                 var book = AutoMapper.Mapper.Map<List<BookingViewModel>>(data);
                 return Ok(book);
@@ -40,11 +41,11 @@ namespace GalmApp.Api.Controllers
         }
 
         [Route("GetBookingUpcommingByUser")]
-        public IHttpActionResult GetBookingUpcommingByUser(int userId, int days)
+        public IHttpActionResult GetBookingUpcommingByUser(string userName, int days)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
-                var data = dbContext.Bookings.Where(st => st.UserId == userId && st.BookingDate.Value>=DateTime.Now.AddDays(-days)).ToList();
+                var data = dbContext.Bookings.Where(st => st.UserName == userName && st.BookingDate.Value >= DateTime.Now.AddDays(-days)).ToList();
                 AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>();
                 var book = AutoMapper.Mapper.Map<List<BookingViewModel>>(data);
                 return Ok(book);

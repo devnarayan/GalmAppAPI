@@ -16,8 +16,8 @@ namespace GalmApp.Api.Models
     {
         public int BookingId { get; set; }
         public int ServiceId { get; set; }
-        public Nullable<int> UserId { get; set; }
         public Nullable<System.DateTime> BookingDate { get; set; }
+        public string UserName { get; set; }
     
         public virtual Service Service { get; set; }
     }

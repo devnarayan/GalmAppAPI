@@ -19,6 +19,10 @@ using GalmApp.Api.Results;
 using System.Net;
 using System.Linq;
 using System.Data.Entity;
+using System.Configuration;
+using System.IO;
+using System.Text;
+using GalmApp.Api.ViewModel;
 
 
 namespace GalmApp.Api.Controllers
@@ -54,7 +58,167 @@ namespace GalmApp.Api.Controllers
         }
 
         public ISecureDataFormat<AuthenticationTicket> AccessTokenFormat { get; private set; }
+        /// <summary>
+        /// Add New User.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("RegisterApp")]
+        public async Task<IHttpActionResult> UserRegisterForShop(RegisterBindingModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid posted data");
+            }
+            var dbContext = new GalmAppDBEntities();
+            // If UserName is found already, then simple return already exist for that shop.
+            var getUserData = dbContext.AspNetUsers.Where(us => us.UserName == model.UserName).FirstOrDefault();
+            if (getUserData != null)
+                return BadRequest("Username already exists.");
+            else
+            {
+                string password = model.Password;
 
+                ApplicationUser objApplicationUser = new ApplicationUser();
+                objApplicationUser.PhoneNumber = model.Phone;
+                objApplicationUser.UserName = model.UserName;
+                objApplicationUser.Email = model.Email;
+                objApplicationUser.Address2 = model.Address2;
+                objApplicationUser.Address1 = model.Address1;
+                objApplicationUser.DeviceToken = model.DeviceToken;
+                objApplicationUser.DeviceType = model.DeviceType;
+                objApplicationUser.RegisterOn = model.RegisterOn;
+                objApplicationUser.LastLogOn = model.LastLogOn;
+
+
+                var result = await UserManager.CreateAsync(objApplicationUser, password);
+                if (!result.Succeeded)
+                {
+                    return GetErrorResult(result);
+                }
+                return Ok();
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("Login")]
+        public async Task<IHttpActionResult> Login(LoginModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid posted data");
+            }
+            var dbContext = new GalmAppDBEntities();
+
+            var user = await UserManager.FindAsync(model.UserName, model.Password);
+            if (user != null)
+            {
+                var token = GetTokenForAPI(model);
+                var aspUserData = dbContext.AspNetUsers.Where(us => us.UserName == model.UserName).FirstOrDefault();
+                if (aspUserData != null)
+                {
+                    aspUserData.DeviceToken = model.DeviceToken;
+                    aspUserData.DeviceType = model.DeviceType;
+                    aspUserData.LastLogOn = model.LastLogOn;
+                    try
+                    {
+                        dbContext.Entry(aspUserData).State = EntityState.Modified;
+                        dbContext.SaveChanges();
+                        return Ok(token);
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest("Error");
+                    }
+                }
+                return BadRequest("User name and password invalid.");
+            }
+            else
+            {
+                return BadRequest("User name and password invalid.");
+            }
+        }
+
+        public TokenViewModel GetTokenForAPI(LoginModel objAuthModel)
+        {
+                var myrul = HttpContext.Current.Request.Url.AbsoluteUri;
+                string subdomain = ConfigurationSettings.AppSettings["SubDomain"].ToString();
+                var tokenUrl = myrul.Replace(HttpContext.Current.Request.Url.AbsolutePath, subdomain + "/") + "token";
+               
+                var request = string.Format("grant_type=password&username={0}&password={1}", HttpUtility.UrlEncode(objAuthModel.UserName), HttpUtility.UrlEncode(objAuthModel.Password));
+                TokenViewModel token = null;
+                try
+                {
+                    WebRequest webRequest = WebRequest.Create(tokenUrl);
+                    webRequest.ContentType = @"application/x-www-form-urlencoded"; ;
+                    webRequest.Method = "POST";
+                    byte[] bytes = Encoding.ASCII.GetBytes(request);
+                    webRequest.ContentLength = bytes.Length;
+                    using (Stream outputStream = webRequest.GetRequestStream())
+                    {
+                        outputStream.Write(bytes, 0, bytes.Length);
+                    }
+                    using (WebResponse webResponse = webRequest.GetResponse())
+                    {
+                        StreamReader newstreamreader = new StreamReader(webResponse.GetResponseStream());
+                        string newresponsefromserver = newstreamreader.ReadToEnd();
+                        newresponsefromserver = newresponsefromserver.Replace(".expires", "expires").Replace(".issued", "issued");
+                        token = Newtonsoft.Json.JsonConvert.DeserializeObject<TokenViewModel>(newresponsefromserver);
+                    }
+                }
+                catch (Exception)
+                {
+                    token = null;
+                }
+                return token;
+        }
+
+
+        /// <summary>
+        /// update user for shop
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Authorize]
+        [Route("UpdateUserInfo")]
+        public async Task<IHttpActionResult> UpdateUserInfo(RegisterBindingModel model)
+        {
+            var dbContext = new GalmAppDBEntities();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid posted data");
+            }
+
+            var aspUserData = dbContext.AspNetUsers.Where(us => us.UserName == model.UserName).FirstOrDefault();
+            if (aspUserData != null)
+            {
+                aspUserData.PhoneNumber = model.UserName;
+                aspUserData.Email = model.Email;
+                aspUserData.Address2 = model.Address2;
+                aspUserData.Address1 = model.Address1;
+                aspUserData.DeviceToken = model.DeviceToken;
+                aspUserData.DeviceType = model.DeviceType;
+
+                var password = UserManager.PasswordHasher.HashPassword(model.Password);
+                aspUserData.PasswordHash = password;
+                try
+                {
+                    dbContext.Entry(aspUserData).State = EntityState.Modified;
+                    dbContext.SaveChanges();
+
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest("Error");
+                }
+            }
+            return BadRequest("User not registered.");
+        }
         // GET api/Account/UserInfo
         [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
         [Route("UserInfo")]
@@ -323,132 +487,7 @@ namespace GalmApp.Api.Controllers
         }
 
 
-        /// <summary>
-        /// Add New User.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("RegisterApp")]
-        public async Task<IHttpActionResult> UserRegisterForShop(RegisterBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid posted data");
-            }
-            var dbContext = new GalmAppDBEntities();
-            // If UserName is found already, then simple return already exist for that shop.
-            var getUserData = dbContext.AspNetUsers.Where(us => us.UserName == model.UserName).FirstOrDefault();
-            if (getUserData != null)
-                return BadRequest("Username already exists.");
-            else
-            {
-                string password = model.Password;
-
-                ApplicationUser objApplicationUser = new ApplicationUser();
-                objApplicationUser.PhoneNumber = model.Phone;
-                objApplicationUser.UserName = model.UserName;
-                objApplicationUser.Email = model.Email;
-                objApplicationUser.Address2 = model.Address2;
-                objApplicationUser.Address1 = model.Address1;
-                objApplicationUser.DeviceToken = model.DeviceToken;
-                objApplicationUser.DeviceType = model.DeviceType;
-                objApplicationUser.RegisterOn = model.RegisterOn;
-                objApplicationUser.LastLogOn = model.LastLogOn;
-
-
-                var result = await UserManager.CreateAsync(objApplicationUser, password);
-                if (!result.Succeeded)
-                {
-                    return GetErrorResult(result);
-                }
-                return Ok();
-            }
-        }
-
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("Login")]
-        public async Task<IHttpActionResult> Login(RegisterBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid posted data");
-            }
-            var dbContext = new GalmAppDBEntities();
-
-            var user = await UserManager.FindAsync(model.UserName, model.Password);
-            if (user != null)
-            {
-                var aspUserData = dbContext.AspNetUsers.Where(us => us.UserName == model.UserName).FirstOrDefault();
-                if (aspUserData != null)
-                {
-                    aspUserData.DeviceToken = model.DeviceToken;
-                    aspUserData.DeviceType = model.DeviceType;
-                    aspUserData.LastLogOn = model.LastLogOn;
-                    try
-                    {
-                        dbContext.Entry(aspUserData).State = EntityState.Modified;
-                        dbContext.SaveChanges();
-                        return Ok();
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest("Error");
-                    }
-                }
-                return BadRequest("User name and password invalid.");
-            }
-            else
-            {
-                return BadRequest("User name and password invalid.");
-            }
-        }
-
-        
-        /// <summary>
-        /// update user for shop
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Authorize]
-        [Route("UpdateUserInfo")]
-        public async Task<IHttpActionResult> UpdateUserInfo(RegisterBindingModel model)
-        {
-            var dbContext = new GalmAppDBEntities();
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid posted data");
-            }
-
-            var aspUserData = dbContext.AspNetUsers.Where(us => us.UserName == model.UserName).FirstOrDefault();
-            if (aspUserData != null)
-            {
-                aspUserData.PhoneNumber = model.UserName;
-                aspUserData.Email = model.Email;
-                aspUserData.Address2 = model.Address2;
-                aspUserData.Address1 = model.Address1;
-                aspUserData.DeviceToken = model.DeviceToken;
-                aspUserData.DeviceType = model.DeviceType;
-
-                var password = UserManager.PasswordHasher.HashPassword(model.Password);
-                aspUserData.PasswordHash = password;
-                try
-                {
-                    dbContext.Entry(aspUserData).State = EntityState.Modified;
-                    dbContext.SaveChanges();
-
-                    return Ok();
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest("Error");
-                }
-            }
-            return BadRequest("User not registered.");
-        }
+       
 
         //POST api/Account/RegisterExternal
         [OverrideAuthentication]
