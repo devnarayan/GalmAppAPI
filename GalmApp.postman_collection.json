@@ -1,0 +1,238 @@
+{
+	"variables": [],
+	"info": {
+		"name": "GalmApp",
+		"_postman_id": "712cdc91-1636-7fd8-1ff4-07fe7065f8f9",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Token",
+			"request": {
+				"url": "http://localhost:5008/token",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "dev@nagar.com",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "RegisterApp",
+			"request": {
+				"url": "http://localhost:5008/api/Account/RegisterApp",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"UserName\": \"devnagar\",\r\n  \"Email\": \"devn@gmail.com\",\r\n  \"Password\": \"123456\",\r\n  \"ConfirmPassword\": \"123456\",\r\n  \"Phone\": \"155255\",\r\n  \"Address1\": \"sample string 6\",\r\n  \"Address2\": \"sample string 7\",\r\n  \"DeviceType\": \"sample string 8\",\r\n  \"DeviceToken\": \"sample string 9\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "AddService",
+			"request": {
+				"url": "http://localhost:5008/AddService",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer 8mt1jVwGHe-kDxBIlVulRcWlWlPgGRMAm0Zkx3rCCGUad-dKced909TtkmiJxCyPG52M0hAkp1faaVSUxbJp5A8KgJHKwZ6jtI3TYhRwg5ZGsDytXN6j_QVTLjgREPeQMSezlnO0qXGL0i5zjExuPxzh4mljuQookYFF1OftE2KMe20XcDKOmvNvqqWLwumL_D3r8MCSezgjdJ4bHXjcglJgaoWSFJSBqC63G1GKrQ9UweSep0TIIy-a2k_ZHFefqI45QVaHOvQyYCbuLwx3IIFRjbsJwfpXEtf2ezLdW1baT2oHL8EiM6mCbk2K53yR--J0u_zYyIJhYokV-cYgoz-YGK-dSH5lDRKbEJl-M6u0O08opO_oBfi19HIsjhCRG_sbaO1uL9tSqqP0TQGt7P03UQK6V2Gat4W6uXs0QRLTYTs3ult4WB9-r_02Z34-B0wmR41zzmhL2LmCC5BpWwro7emmAdWLS46zpSai6Oo",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"ServiceId\": 0,\r\n  \"Name\": \"Hair\",\r\n  \"Description\": \"desc\",\r\n  \"Image\": \"sample string 4\",\r\n  \"ThumbImg\": \"sample string 5\",\r\n  \"BackgroundImg\": \"sample string 6\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GetServices",
+			"request": {
+				"url": "http://localhost:5008/GetServices",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer 8mt1jVwGHe-kDxBIlVulRcWlWlPgGRMAm0Zkx3rCCGUad-dKced909TtkmiJxCyPG52M0hAkp1faaVSUxbJp5A8KgJHKwZ6jtI3TYhRwg5ZGsDytXN6j_QVTLjgREPeQMSezlnO0qXGL0i5zjExuPxzh4mljuQookYFF1OftE2KMe20XcDKOmvNvqqWLwumL_D3r8MCSezgjdJ4bHXjcglJgaoWSFJSBqC63G1GKrQ9UweSep0TIIy-a2k_ZHFefqI45QVaHOvQyYCbuLwx3IIFRjbsJwfpXEtf2ezLdW1baT2oHL8EiM6mCbk2K53yR--J0u_zYyIJhYokV-cYgoz-YGK-dSH5lDRKbEJl-M6u0O08opO_oBfi19HIsjhCRG_sbaO1uL9tSqqP0TQGt7P03UQK6V2Gat4W6uXs0QRLTYTs3ult4WB9-r_02Z34-B0wmR41zzmhL2LmCC5BpWwro7emmAdWLS46zpSai6Oo",
+						"description": ""
+					}
+				],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "AddPackage",
+			"request": {
+				"url": "http://localhost:5008/AddPackage",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer 8mt1jVwGHe-kDxBIlVulRcWlWlPgGRMAm0Zkx3rCCGUad-dKced909TtkmiJxCyPG52M0hAkp1faaVSUxbJp5A8KgJHKwZ6jtI3TYhRwg5ZGsDytXN6j_QVTLjgREPeQMSezlnO0qXGL0i5zjExuPxzh4mljuQookYFF1OftE2KMe20XcDKOmvNvqqWLwumL_D3r8MCSezgjdJ4bHXjcglJgaoWSFJSBqC63G1GKrQ9UweSep0TIIy-a2k_ZHFefqI45QVaHOvQyYCbuLwx3IIFRjbsJwfpXEtf2ezLdW1baT2oHL8EiM6mCbk2K53yR--J0u_zYyIJhYokV-cYgoz-YGK-dSH5lDRKbEJl-M6u0O08opO_oBfi19HIsjhCRG_sbaO1uL9tSqqP0TQGt7P03UQK6V2Gat4W6uXs0QRLTYTs3ult4WB9-r_02Z34-B0wmR41zzmhL2LmCC5BpWwro7emmAdWLS46zpSai6Oo",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"PackageId\": 0,\r\n  \"ServiceId\": 2,\r\n  \"Duration\": \"30 Min\",\r\n  \"PackageName\": \"sample string 4\",\r\n  \"Currency\": \"sample string 5\",\r\n  \"Amount\": 1.0\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "GetPackagesByService ID",
+			"request": {
+				"url": {
+					"raw": "http://localhost:5008/GetPackaes?serviceId=2",
+					"protocol": "http",
+					"auth": {},
+					"host": [
+						"localhost"
+					],
+					"port": "5008",
+					"path": [
+						"GetPackaes"
+					],
+					"query": [
+						{
+							"key": "serviceId",
+							"value": "2",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer 8mt1jVwGHe-kDxBIlVulRcWlWlPgGRMAm0Zkx3rCCGUad-dKced909TtkmiJxCyPG52M0hAkp1faaVSUxbJp5A8KgJHKwZ6jtI3TYhRwg5ZGsDytXN6j_QVTLjgREPeQMSezlnO0qXGL0i5zjExuPxzh4mljuQookYFF1OftE2KMe20XcDKOmvNvqqWLwumL_D3r8MCSezgjdJ4bHXjcglJgaoWSFJSBqC63G1GKrQ9UweSep0TIIy-a2k_ZHFefqI45QVaHOvQyYCbuLwx3IIFRjbsJwfpXEtf2ezLdW1baT2oHL8EiM6mCbk2K53yR--J0u_zYyIJhYokV-cYgoz-YGK-dSH5lDRKbEJl-M6u0O08opO_oBfi19HIsjhCRG_sbaO1uL9tSqqP0TQGt7P03UQK6V2Gat4W6uXs0QRLTYTs3ult4WB9-r_02Z34-B0wmR41zzmhL2LmCC5BpWwro7emmAdWLS46zpSai6Oo",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"PackageId\": 0,\r\n  \"ServiceId\": 2,\r\n  \"Duration\": \"30 Min\",\r\n  \"PackageName\": \"sample string 4\",\r\n  \"Currency\": \"sample string 5\",\r\n  \"Amount\": 1.0\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "AddBooking",
+			"request": {
+				"url": "http://localhost:5008/AddBooking",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer 8mt1jVwGHe-kDxBIlVulRcWlWlPgGRMAm0Zkx3rCCGUad-dKced909TtkmiJxCyPG52M0hAkp1faaVSUxbJp5A8KgJHKwZ6jtI3TYhRwg5ZGsDytXN6j_QVTLjgREPeQMSezlnO0qXGL0i5zjExuPxzh4mljuQookYFF1OftE2KMe20XcDKOmvNvqqWLwumL_D3r8MCSezgjdJ4bHXjcglJgaoWSFJSBqC63G1GKrQ9UweSep0TIIy-a2k_ZHFefqI45QVaHOvQyYCbuLwx3IIFRjbsJwfpXEtf2ezLdW1baT2oHL8EiM6mCbk2K53yR--J0u_zYyIJhYokV-cYgoz-YGK-dSH5lDRKbEJl-M6u0O08opO_oBfi19HIsjhCRG_sbaO1uL9tSqqP0TQGt7P03UQK6V2Gat4W6uXs0QRLTYTs3ult4WB9-r_02Z34-B0wmR41zzmhL2LmCC5BpWwro7emmAdWLS46zpSai6Oo",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"BookingId\": 0,\r\n  \"ServiceId\": 2,\r\n  \"UserId\": 1,\r\n  \"BookingDate\": \"2017-06-04\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Login Device",
+			"request": {
+				"url": "http://localhost:5008/api/Account/Login",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "",
+						"value": "",
+						"description": "",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"UserName\": \"devnagar\",\r\n  \"Password\": \"123456\",\r\n  \"DeviceType\": \"sample string 3\",\r\n  \"DeviceToken\": \"sample string 4\",\r\n  \"LastLogOn\": \"2017-06-04\"\r\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
