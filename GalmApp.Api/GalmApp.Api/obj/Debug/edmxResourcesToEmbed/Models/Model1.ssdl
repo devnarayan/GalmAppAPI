@@ -56,6 +56,7 @@
     <Property Name="DeviceToken" Type="text" />
     <Property Name="RegisterOn" Type="datetime" />
     <Property Name="LastLogOn" Type="datetime" />
+    <Property Name="LocationId" Type="int" />
   </EntityType>
   <EntityType Name="Booking">
     <Key>
@@ -75,6 +76,16 @@
     <Property Name="Answer" Type="text" />
     <Property Name="AddedOn" Type="datetime" />
   </EntityType>
+  <EntityType Name="Location">
+    <Key>
+      <PropertyRef Name="LocationId" />
+    </Key>
+    <Property Name="LocationId" Type="int" Nullable="false" />
+    <Property Name="LocationName" Type="nvarchar" MaxLength="256" />
+    <Property Name="CountryCode" Type="nvarchar" MaxLength="50" />
+    <Property Name="Country" Type="nvarchar" MaxLength="50" />
+    <Property Name="AddedOn" Type="datetime" />
+  </EntityType>
   <EntityType Name="Package">
     <Key>
       <PropertyRef Name="PackageId" />
@@ -84,6 +95,15 @@
     <Property Name="Duration" Type="nvarchar" MaxLength="256" />
     <Property Name="PackageName" Type="nvarchar" MaxLength="256" />
     <Property Name="Currency" Type="varchar" MaxLength="50" />
+    <Property Name="Amount" Type="money" />
+  </EntityType>
+  <EntityType Name="PackagePrice">
+    <Key>
+      <PropertyRef Name="PackagePriceId" />
+    </Key>
+    <Property Name="PackagePriceId" Type="int" Nullable="false" />
+    <Property Name="PackageId" Type="int" />
+    <Property Name="LocationId" Type="int" />
     <Property Name="Amount" Type="money" />
   </EntityType>
   <EntityType Name="Service">
@@ -177,6 +197,30 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="FK_PackagePrice_Location">
+    <End Role="Location" Type="Self.Location" Multiplicity="0..1" />
+    <End Role="PackagePrice" Type="Self.PackagePrice" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Location">
+        <PropertyRef Name="LocationId" />
+      </Principal>
+      <Dependent Role="PackagePrice">
+        <PropertyRef Name="LocationId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PackagePrice_Package">
+    <End Role="Package" Type="Self.Package" Multiplicity="0..1" />
+    <End Role="PackagePrice" Type="Self.PackagePrice" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Package">
+        <PropertyRef Name="PackageId" />
+      </Principal>
+      <Dependent Role="PackagePrice">
+        <PropertyRef Name="PackageId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <EntityContainer Name="GalmAppDBModelStoreContainer">
     <EntitySet Name="AspNetRoles" EntityType="Self.AspNetRoles" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="AspNetUserClaims" EntityType="Self.AspNetUserClaims" Schema="dbo" store:Type="Tables" />
@@ -185,7 +229,9 @@
     <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Booking" EntityType="Self.Booking" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="FAQ" EntityType="Self.FAQ" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Location" EntityType="Self.Location" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Package" EntityType="Self.Package" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="PackagePrice" EntityType="Self.PackagePrice" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Service" EntityType="Self.Service" Schema="dbo" store:Type="Tables" />
     <AssociationSet Name="FK_Booking_Service" Association="Self.FK_Booking_Service">
       <End Role="Service" EntitySet="Service" />
@@ -210,6 +256,14 @@
     <AssociationSet Name="FK_Package_Service" Association="Self.FK_Package_Service">
       <End Role="Service" EntitySet="Service" />
       <End Role="Package" EntitySet="Package" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PackagePrice_Location" Association="Self.FK_PackagePrice_Location">
+      <End Role="Location" EntitySet="Location" />
+      <End Role="PackagePrice" EntitySet="PackagePrice" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PackagePrice_Package" Association="Self.FK_PackagePrice_Package">
+      <End Role="Package" EntitySet="Package" />
+      <End Role="PackagePrice" EntitySet="PackagePrice" />
     </AssociationSet>
   </EntityContainer>
 </Schema>

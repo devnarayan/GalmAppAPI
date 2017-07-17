@@ -30,6 +30,7 @@
     <Property Name="Currency" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
     <Property Name="Amount" Type="Decimal" Precision="19" Scale="4" />
     <NavigationProperty Name="Service" Relationship="Self.FK_Package_Service" FromRole="Package" ToRole="Service" />
+    <NavigationProperty Name="PackagePrices" Relationship="GalmAppDBModel.FK_PackagePrice_Package" FromRole="Package" ToRole="PackagePrice" />
   </EntityType>
   <EntityType Name="Service">
     <Key>
@@ -84,6 +85,16 @@
     <EntitySet Name="AspNetRoles" EntityType="GalmAppDBModel.AspNetRole" />
     <EntitySet Name="AspNetUserClaims" EntityType="GalmAppDBModel.AspNetUserClaim" />
     <EntitySet Name="AspNetUserLogins" EntityType="GalmAppDBModel.AspNetUserLogin" />
+    <EntitySet Name="Locations" EntityType="GalmAppDBModel.Location" />
+    <EntitySet Name="PackagePrices" EntityType="GalmAppDBModel.PackagePrice" />
+    <AssociationSet Name="FK_PackagePrice_Location" Association="GalmAppDBModel.FK_PackagePrice_Location">
+      <End Role="Location" EntitySet="Locations" />
+      <End Role="PackagePrice" EntitySet="PackagePrices" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PackagePrice_Package" Association="GalmAppDBModel.FK_PackagePrice_Package">
+      <End Role="Package" EntitySet="Packages" />
+      <End Role="PackagePrice" EntitySet="PackagePrices" />
+    </AssociationSet>
     <EntitySet Name="AspNetUsers" EntityType="GalmAppDBModel.AspNetUser" />
     <AssociationSet Name="FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" Association="GalmAppDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId">
       <End Role="AspNetUser" EntitySet="AspNetUsers" />
@@ -127,6 +138,52 @@
     <Property Name="UserId" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
     <NavigationProperty Name="AspNetUser" Relationship="GalmAppDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" FromRole="AspNetUserLogin" ToRole="AspNetUser" />
   </EntityType>
+  <EntityType Name="Location">
+    <Key>
+      <PropertyRef Name="LocationId" />
+    </Key>
+    <Property Name="LocationId" Type="Int32" Nullable="false" />
+    <Property Name="LocationName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+    <Property Name="CountryCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Country" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="AddedOn" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="PackagePrices" Relationship="GalmAppDBModel.FK_PackagePrice_Location" FromRole="Location" ToRole="PackagePrice" />
+  </EntityType>
+  <EntityType Name="PackagePrice">
+    <Key>
+      <PropertyRef Name="PackagePriceId" />
+    </Key>
+    <Property Name="PackagePriceId" Type="Int32" Nullable="false" />
+    <Property Name="PackageId" Type="Int32" />
+    <Property Name="LocationId" Type="Int32" />
+    <Property Name="Amount" Type="Decimal" Precision="19" Scale="4" />
+    <NavigationProperty Name="Location" Relationship="GalmAppDBModel.FK_PackagePrice_Location" FromRole="PackagePrice" ToRole="Location" />
+    <NavigationProperty Name="Package" Relationship="GalmAppDBModel.FK_PackagePrice_Package" FromRole="PackagePrice" ToRole="Package" />
+  </EntityType>
+  <Association Name="FK_PackagePrice_Location">
+    <End Type="GalmAppDBModel.Location" Role="Location" Multiplicity="0..1" />
+    <End Type="GalmAppDBModel.PackagePrice" Role="PackagePrice" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Location">
+        <PropertyRef Name="LocationId" />
+      </Principal>
+      <Dependent Role="PackagePrice">
+        <PropertyRef Name="LocationId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PackagePrice_Package">
+    <End Type="GalmAppDBModel.Package" Role="Package" Multiplicity="0..1" />
+    <End Type="GalmAppDBModel.PackagePrice" Role="PackagePrice" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Package">
+        <PropertyRef Name="PackageId" />
+      </Principal>
+      <Dependent Role="PackagePrice">
+        <PropertyRef Name="PackageId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
   <EntityType Name="AspNetUser">
     <Key>
       <PropertyRef Name="Id" />
@@ -147,11 +204,12 @@
     <Property Name="Address2" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
     <Property Name="DeviceType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
     <Property Name="DeviceToken" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Name="RegisterOn" Type="DateTime" Precision="3" />
+    <Property Name="LastLogOn" Type="DateTime" Precision="3" />
+    <Property Name="LocationId" Type="Int32" />
     <NavigationProperty Name="AspNetUserClaims" Relationship="GalmAppDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" FromRole="AspNetUser" ToRole="AspNetUserClaim" />
     <NavigationProperty Name="AspNetUserLogins" Relationship="GalmAppDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" FromRole="AspNetUser" ToRole="AspNetUserLogin" />
     <NavigationProperty Name="AspNetRoles" Relationship="GalmAppDBModel.AspNetUserRoles" FromRole="AspNetUser" ToRole="AspNetRole" />
-    <Property Name="RegisterOn" Type="DateTime" Precision="3" />
-    <Property Name="LastLogOn" Type="DateTime" Precision="3" />
   </EntityType>
   <Association Name="FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId">
     <End Type="GalmAppDBModel.AspNetUser" Role="AspNetUser" Multiplicity="1">

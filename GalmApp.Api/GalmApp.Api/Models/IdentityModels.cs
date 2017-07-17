@@ -16,6 +16,8 @@ namespace GalmApp.Api.Models
         public string DeviceToken { get; set; }
         public Nullable<DateTime> RegisterOn { get; set; }
         public Nullable<DateTime> LastLogOn { get; set; }
+        public Nullable<int> LocationId { get; set; }
+
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, string authenticationType)
         {
             // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType

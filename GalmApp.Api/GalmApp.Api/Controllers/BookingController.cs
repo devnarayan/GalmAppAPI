@@ -2,6 +2,7 @@
 using GalmApp.Api.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -21,7 +22,7 @@ namespace GalmApp.Api.Controllers
             {
                 if (model.BookingDate == null) model.BookingDate = DateTime.UtcNow;
                 AutoMapper.Mapper.CreateMap<BookingViewModel, Booking>();
-                var book= AutoMapper.Mapper.Map<Booking>(model);
+                var book = AutoMapper.Mapper.Map<Booking>(model);
                 dbContext.Bookings.Add(book);
                 dbContext.SaveChanges();
                 return Ok();
@@ -120,27 +121,119 @@ namespace GalmApp.Api.Controllers
         }
 
         [Route("GetPackaes")]
-        public IHttpActionResult GetPackaes(int serviceId)
+        public IHttpActionResult GetPackaes(int serviceId, int? locationid = 0)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
+                AutoMapper.Mapper.Reset();
                 var data = dbContext.Packages.Where(st => st.ServiceId == serviceId).ToList();
-                AutoMapper.Mapper.CreateMap<Package, PackageViewModel>();
-                var book = AutoMapper.Mapper.Map<List<PackageViewModel>>(data);
+                if (locationid != 0)
+                {
+                    AutoMapper.Mapper.CreateMap<Package, PackageViewModel>().ForMember(d => d.LocationPrices, opt => opt.MapFrom(d => d.PackagePrices.Where(st => st.LocationId == locationid).ToList()));
+                }
+                else
+                {
+                    AutoMapper.Mapper.CreateMap<Package, PackageViewModel>().ForMember(d => d.LocationPrices, opt => opt.MapFrom(d => d.PackagePrices));
+                }
+                AutoMapper.Mapper.CreateMap<PackagePrice, PackagePriceViewModel>()
+                  .ForMember(d => d.LocationName, opt => opt.MapFrom(d => d.Location.LocationName))
+                  .ForMember(d => d.CountryCode, opt => opt.MapFrom(d => d.Location.CountryCode))
+                  .ForMember(d => d.Country, opt => opt.MapFrom(d => d.Location.Country));
+                var book = AutoMapper.Mapper.Map<PackageViewModel>(data);
                 return Ok(book);
             }
         }
         [Route("GetPackaeById")]
-        public IHttpActionResult GetPackaeById(int packageid)
+        public IHttpActionResult GetPackaeById(int packageid, int? locationid = 0)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
+                AutoMapper.Mapper.Reset();
                 var data = dbContext.Packages.Where(st => st.PackageId == packageid).FirstOrDefault();
-                AutoMapper.Mapper.CreateMap<Package, PackageViewModel>();
+                if (locationid != 0)
+                {
+                    AutoMapper.Mapper.CreateMap<Package, PackageViewModel>().ForMember(d => d.LocationPrices, opt => opt.MapFrom(d => d.PackagePrices.Where(st => st.LocationId == locationid).ToList()));
+                }
+                else
+                {
+                    AutoMapper.Mapper.CreateMap<Package, PackageViewModel>().ForMember(d => d.LocationPrices, opt => opt.MapFrom(d => d.PackagePrices));
+                }
+                AutoMapper.Mapper.CreateMap<PackagePrice, PackagePriceViewModel>()
+                    .ForMember(d => d.LocationName, opt => opt.MapFrom(d => d.Location.LocationName))
+                    .ForMember(d => d.CountryCode, opt => opt.MapFrom(d => d.Location.CountryCode))
+                    .ForMember(d => d.Country, opt => opt.MapFrom(d => d.Location.Country));
                 var book = AutoMapper.Mapper.Map<PackageViewModel>(data);
                 return Ok(book);
             }
         }
         #endregion
+
+        #region Location
+        [Route("AddLocation")]
+        public IHttpActionResult AddLocation(LocationViewModel model)
+        {
+            using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
+            {
+                AutoMapper.Mapper.CreateMap<Location, Location>();
+                var book = AutoMapper.Mapper.Map<Location>(model);
+                dbContext.Locations.Add(book);
+                dbContext.SaveChanges();
+                return Ok();
+            }
+        }
+
+        [Route("GetLocations")]
+        public IHttpActionResult GetLocations()
+        {
+            using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
+            {
+                var data = dbContext.Locations.ToList();
+                AutoMapper.Mapper.CreateMap<Location, LocationViewModel>();
+                var book = AutoMapper.Mapper.Map<List<LocationViewModel>>(data);
+                return Ok(book);
+            }
+        }
+        [Route("GetLocationById")]
+        public IHttpActionResult GetLocationById(int locationId)
+        {
+            using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
+            {
+                var data = dbContext.Locations.Where(st => st.LocationId == locationId).FirstOrDefault();
+                AutoMapper.Mapper.CreateMap<Location, LocationViewModel>();
+                var book = AutoMapper.Mapper.Map<LocationViewModel>(data);
+                return Ok(book);
+            }
+        }
+        [Route("RemoveLocation")]
+        public IHttpActionResult RemoveLocation(int locationId)
+        {
+            using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
+            {
+                var location = dbContext.Locations.Where(st => st.LocationId == locationId).FirstOrDefault();
+                if (location != null)
+                {
+                    var locationPrice = dbContext.PackagePrices.Where(st => st.LocationId == locationId).ToList();
+                    if (locationPrice != null)
+                    {
+                        foreach (var price in locationPrice)
+                        {
+                            dbContext.Entry(price).State = EntityState.Deleted;
+                            dbContext.SaveChanges();
+                        }
+                    }
+                    dbContext.Entry(location).State = EntityState.Deleted;
+                    dbContext.SaveChanges();
+                    var response = new { Status = "Success", Message = "Location removed successfully." };
+                    return Ok(response);
+                }
+                else
+                {
+                    var response = new { Status = "Fail", Message = "Location not found." };
+                    return Ok(response);
+                }
+            }
+        }
+        #endregion
+
     }
 }

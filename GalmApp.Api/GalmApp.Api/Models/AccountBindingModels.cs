@@ -60,6 +60,8 @@ namespace GalmApp.Api.Models
         public string DeviceToken { get; set; }
         public Nullable<DateTime> RegisterOn { get; set; }
         public Nullable<DateTime> LastLogOn { get; set; }
+        public Nullable<int> LocationId { get; set; }
+
     }
 
     public class LoginModel

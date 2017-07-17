@@ -14,6 +14,12 @@ namespace GalmApp.Api.Models
     
     public partial class Package
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Package()
+        {
+            this.PackagePrices = new HashSet<PackagePrice>();
+        }
+    
         public int PackageId { get; set; }
         public int ServiceId { get; set; }
         public string Duration { get; set; }
@@ -22,5 +28,7 @@ namespace GalmApp.Api.Models
         public Nullable<decimal> Amount { get; set; }
     
         public virtual Service Service { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PackagePrice> PackagePrices { get; set; }
     }
 }

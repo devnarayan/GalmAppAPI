@@ -91,6 +91,7 @@ namespace GalmApp.Api.Controllers
                 objApplicationUser.DeviceType = model.DeviceType;
                 objApplicationUser.RegisterOn = model.RegisterOn;
                 objApplicationUser.LastLogOn = model.LastLogOn;
+                objApplicationUser.LocationId = model.LocationId;
 
 
                 var result = await UserManager.CreateAsync(objApplicationUser, password);
@@ -202,6 +203,7 @@ namespace GalmApp.Api.Controllers
                 aspUserData.Address1 = model.Address1;
                 aspUserData.DeviceToken = model.DeviceToken;
                 aspUserData.DeviceType = model.DeviceType;
+                aspUserData.LocationId = model.LocationId;
 
                 var password = UserManager.PasswordHasher.HashPassword(model.Password);
                 aspUserData.PasswordHash = password;

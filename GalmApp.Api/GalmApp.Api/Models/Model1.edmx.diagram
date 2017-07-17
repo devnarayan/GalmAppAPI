@@ -14,7 +14,11 @@
         <EntityTypeShape EntityType="GalmAppDBModel.AspNetRole" Width="1.5" PointX="5.375" PointY="5.625" />
         <EntityTypeShape EntityType="GalmAppDBModel.AspNetUserClaim" Width="1.5" PointX="9.875" PointY="4.125" />
         <EntityTypeShape EntityType="GalmAppDBModel.AspNetUserLogin" Width="1.5" PointX="9.875" PointY="6.875" />
-        <EntityTypeShape EntityType="GalmAppDBModel.AspNetUser" Width="1.5" PointX="7.625" PointY="4" />
+        <EntityTypeShape EntityType="GalmAppDBModel.Location" Width="1.5" PointX="6" PointY="11" />
+        <EntityTypeShape EntityType="GalmAppDBModel.PackagePrice" Width="1.5" PointX="8.25" PointY="1" />
+        <AssociationConnector Association="GalmAppDBModel.FK_PackagePrice_Location" />
+        <AssociationConnector Association="GalmAppDBModel.FK_PackagePrice_Package" />
+        <EntityTypeShape EntityType="GalmAppDBModel.AspNetUser" Width="1.5" PointX="7.625" PointY="4.75" />
         <AssociationConnector Association="GalmAppDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" />
         <AssociationConnector Association="GalmAppDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" />
         <AssociationConnector Association="GalmAppDBModel.AspNetUserRoles" />

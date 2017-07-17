@@ -72,9 +72,31 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="Locations">
+      <EntityTypeMapping TypeName="GalmAppDBModel.Location">
+        <MappingFragment StoreEntitySet="Location">
+          <ScalarProperty Name="AddedOn" ColumnName="AddedOn" />
+          <ScalarProperty Name="Country" ColumnName="Country" />
+          <ScalarProperty Name="CountryCode" ColumnName="CountryCode" />
+          <ScalarProperty Name="LocationName" ColumnName="LocationName" />
+          <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="PackagePrices">
+      <EntityTypeMapping TypeName="GalmAppDBModel.PackagePrice">
+        <MappingFragment StoreEntitySet="PackagePrice">
+          <ScalarProperty Name="Amount" ColumnName="Amount" />
+          <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+          <ScalarProperty Name="PackageId" ColumnName="PackageId" />
+          <ScalarProperty Name="PackagePriceId" ColumnName="PackagePriceId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <EntitySetMapping Name="AspNetUsers">
       <EntityTypeMapping TypeName="GalmAppDBModel.AspNetUser">
         <MappingFragment StoreEntitySet="AspNetUsers">
+          <ScalarProperty Name="LocationId" ColumnName="LocationId" />
           <ScalarProperty Name="LastLogOn" ColumnName="LastLogOn" />
           <ScalarProperty Name="RegisterOn" ColumnName="RegisterOn" />
           <ScalarProperty Name="DeviceToken" ColumnName="DeviceToken" />
