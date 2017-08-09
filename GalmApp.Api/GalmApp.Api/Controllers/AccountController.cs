@@ -23,7 +23,8 @@ using System.Configuration;
 using System.IO;
 using System.Text;
 using GalmApp.Api.ViewModel;
-
+using GalmApp.Api.Services;
+using System.Web.Http.Description;
 
 namespace GalmApp.Api.Controllers
 {
@@ -99,7 +100,7 @@ namespace GalmApp.Api.Controllers
                 {
                     return GetErrorResult(result);
                 }
-                return Ok();
+                return Ok(new ResponseModel { Message = "User register successfully.", Status = "Success" });
             }
         }
 
@@ -145,36 +146,36 @@ namespace GalmApp.Api.Controllers
 
         public TokenViewModel GetTokenForAPI(LoginModel objAuthModel)
         {
-                var myrul = HttpContext.Current.Request.Url.AbsoluteUri;
-                string subdomain = ConfigurationSettings.AppSettings["SubDomain"].ToString();
-                var tokenUrl = myrul.Replace(HttpContext.Current.Request.Url.AbsolutePath, subdomain + "/") + "token";
-               
-                var request = string.Format("grant_type=password&username={0}&password={1}", HttpUtility.UrlEncode(objAuthModel.UserName), HttpUtility.UrlEncode(objAuthModel.Password));
-                TokenViewModel token = null;
-                try
+            string subdomain = ConfigurationSettings.AppSettings["SubDomain"].ToString();
+            var tokenUrl = subdomain + "/token";
+            //var tokenUrl = myrul.Replace(HttpContext.Current.Request.Url.AbsolutePath, subdomain + "/") + "token";
+
+            var request = string.Format("grant_type=password&username={0}&password={1}", HttpUtility.UrlEncode(objAuthModel.UserName), HttpUtility.UrlEncode(objAuthModel.Password));
+            TokenViewModel token = null;
+            try
+            {
+                WebRequest webRequest = WebRequest.Create(tokenUrl);
+                webRequest.ContentType = @"application/x-www-form-urlencoded";
+                webRequest.Method = "POST";
+                byte[] bytes = Encoding.ASCII.GetBytes(request);
+                webRequest.ContentLength = bytes.Length;
+                using (Stream outputStream = webRequest.GetRequestStream())
                 {
-                    WebRequest webRequest = WebRequest.Create(tokenUrl);
-                    webRequest.ContentType = @"application/x-www-form-urlencoded"; ;
-                    webRequest.Method = "POST";
-                    byte[] bytes = Encoding.ASCII.GetBytes(request);
-                    webRequest.ContentLength = bytes.Length;
-                    using (Stream outputStream = webRequest.GetRequestStream())
-                    {
-                        outputStream.Write(bytes, 0, bytes.Length);
-                    }
-                    using (WebResponse webResponse = webRequest.GetResponse())
-                    {
-                        StreamReader newstreamreader = new StreamReader(webResponse.GetResponseStream());
-                        string newresponsefromserver = newstreamreader.ReadToEnd();
-                        newresponsefromserver = newresponsefromserver.Replace(".expires", "expires").Replace(".issued", "issued");
-                        token = Newtonsoft.Json.JsonConvert.DeserializeObject<TokenViewModel>(newresponsefromserver);
-                    }
+                    outputStream.Write(bytes, 0, bytes.Length);
                 }
-                catch (Exception)
+                using (WebResponse webResponse = webRequest.GetResponse())
                 {
-                    token = null;
+                    StreamReader newstreamreader = new StreamReader(webResponse.GetResponseStream());
+                    string newresponsefromserver = newstreamreader.ReadToEnd();
+                    newresponsefromserver = newresponsefromserver.Replace(".expires", "expires").Replace(".issued", "issued");
+                    token = Newtonsoft.Json.JsonConvert.DeserializeObject<TokenViewModel>(newresponsefromserver);
                 }
-                return token;
+            }
+            catch (Exception)
+            {
+                token = null;
+            }
+            return token;
         }
 
 
@@ -197,7 +198,8 @@ namespace GalmApp.Api.Controllers
             var aspUserData = dbContext.AspNetUsers.Where(us => us.UserName == model.UserName).FirstOrDefault();
             if (aspUserData != null)
             {
-                aspUserData.PhoneNumber = model.UserName;
+                aspUserData.UserName = model.UserName;
+                aspUserData.PhoneNumber = model.Phone;
                 aspUserData.Email = model.Email;
                 aspUserData.Address2 = model.Address2;
                 aspUserData.Address1 = model.Address1;
@@ -221,308 +223,440 @@ namespace GalmApp.Api.Controllers
             }
             return BadRequest("User not registered.");
         }
+
+        /// <summary>
+        ///  Get contact list
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize]
+        [Route("userlist")]
+        [ResponseType(typeof(List<AspNetUserModel>))]
+        public IHttpActionResult GetContactList(int index, int pageSize)
+        {
+            using (var dbContext = new GalmAppDBEntities())
+            {
+                List<AspNetUser> users = new List<AspNetUser>();
+                users = dbContext.AspNetUsers.OrderByDescending(od => od.UserName).Skip(index).Take(pageSize).ToList();
+                if (users != null)
+                {
+                    AutoMapper.Mapper.CreateMap<AspNetUser, AspNetUserModel>();
+
+                    var contactList = AutoMapper.Mapper.Map<List<AspNetUserModel>>(users);
+                    return Ok(new ResponseModel { Data = contactList, Status = "Success", Message = "User list" });
+                }
+                return Ok(new ResponseModel { Status = "Fail", Message = "User List not found." });
+            }
+        }
         // GET api/Account/UserInfo
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
-        [Route("UserInfo")]
-        public UserInfoViewModel GetUserInfo()
+        [HttpGet]
+        [Route("User")]
+        [ResponseType(typeof(AspNetUserModel))]
+        public IHttpActionResult GetUserInfo(string userid)
         {
-            ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
-
-            return new UserInfoViewModel
+            using (var dbContext = new GalmAppDBEntities())
             {
-                Email = User.Identity.GetUserName(),
-                HasRegistered = externalLogin == null,
-                LoginProvider = externalLogin != null ? externalLogin.LoginProvider : null
-            };
-        }
-
-        // POST api/Account/Logout
-        [Route("Logout")]
-        public IHttpActionResult Logout()
-        {
-            Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
-            return Ok();
-        }
-
-        // GET api/Account/ManageInfo?returnUrl=%2F&generateState=true
-        [Route("ManageInfo")]
-        public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
-        {
-            IdentityUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            List<UserLoginInfoViewModel> logins = new List<UserLoginInfoViewModel>();
-
-            foreach (IdentityUserLogin linkedAccount in user.Logins)
-            {
-                logins.Add(new UserLoginInfoViewModel
+                var users = dbContext.AspNetUsers.Where(od => od.Id == userid).FirstOrDefault();
+                if (users != null)
                 {
-                    LoginProvider = linkedAccount.LoginProvider,
-                    ProviderKey = linkedAccount.ProviderKey
-                });
-            }
+                    AutoMapper.Mapper.CreateMap<AspNetUser, AspNetUserModel>();
 
-            if (user.PasswordHash != null)
-            {
-                logins.Add(new UserLoginInfoViewModel
-                {
-                    LoginProvider = LocalLoginProvider,
-                    ProviderKey = user.UserName,
-                });
+                    var contactList = AutoMapper.Mapper.Map<AspNetUserModel>(users);
+                    return Ok(new ResponseModel { Data = contactList, Status = "Success", Message = "User Info" });
+                }
+                return Ok(new ResponseModel { Status = "Fail", Message = "User Info not found." });
             }
-
-            return new ManageInfoViewModel
-            {
-                LocalLoginProvider = LocalLoginProvider,
-                Email = user.UserName,
-                Logins = logins,
-                ExternalLoginProviders = GetExternalLogins(returnUrl, generateState)
-            };
         }
 
-        // POST api/Account/ChangePassword
-        [Route("ChangePassword")]
-        public async Task<IHttpActionResult> ChangePassword(ChangePasswordBindingModel model)
+        // GET api/Account/UserInfo
+        [HttpGet]
+        [Route("UserByEmail")]
+        [ResponseType(typeof(AspNetUserModel))]
+        public IHttpActionResult GetUserByEmail(string emailid)
         {
-            if (!ModelState.IsValid)
+            using (var dbContext = new GalmAppDBEntities())
             {
-                return BadRequest(ModelState);
+                var users = dbContext.AspNetUsers.Where(od => od.Email == emailid).FirstOrDefault();
+                if (users != null)
+                {
+                    AutoMapper.Mapper.CreateMap<AspNetUser, AspNetUserModel>();
+
+                    var contactList = AutoMapper.Mapper.Map<AspNetUserModel>(users);
+                    return Ok(new ResponseModel { Data = contactList, Status = "Success", Message = "User Info" });
+                }
+                return Ok(new ResponseModel { Status = "Fail", Message = "User Info not found." });
+            }
+        }
+        //// POST api/Account/ChangePassword
+        //[Route("ChangePassword")]
+        //public async Task<IHttpActionResult> ChangePassword(ChangePasswordBindingModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
+        //        model.NewPassword);
+
+        //    if (!result.Succeeded)
+        //    {
+        //        return GetErrorResult(result);
+        //    }
+
+        //    return Ok();
+        //}
+
+        // GET api/Account/GetPasswordResetCode
+        [Route("GetPasswordResetCode")]
+        [AllowAnonymous]
+        public IHttpActionResult GetPasswordResetCode(string emailPhone)
+        {
+            var dbContext = new GalmAppDBEntities();
+            // Identify email or phone. 
+            // Generate randon pin and and send on email.
+            var aspUserData = dbContext.AspNetUsers.Where(us => us.Email == emailPhone || us.PhoneNumber == emailPhone).FirstOrDefault();
+            if (aspUserData != null)
+            {
+                // Generate 6 digit random code.
+                Random generator = new Random();
+                aspUserData.ResetCode = generator.Next(0, 1000000).ToString("D6");
+                // Reset code will expire in 10 min.
+                aspUserData.ResetCodeExpired = DateTime.UtcNow.AddMinutes(10);
+                try
+                {
+                    dbContext.Entry(aspUserData).State = EntityState.Modified;
+                    dbContext.SaveChanges();
+
+                    // Send this code on email.
+                    SMTPService service = new SMTPService();
+                    service.SendResetCodeMessage(aspUserData.Email, aspUserData.ResetCode);
+                    var response = new
+                    { ResetCode = aspUserData.ResetCode, Status = "Success", Message = "Reset password code sent to email" };
+                    return Ok(response);
+                }
+                catch (Exception ex)
+                {
+                    return Ok(new ResponseModel { Status = "Fail", Message = ex.Message });
+                }
             }
 
-            IdentityResult result = await UserManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword,
-                model.NewPassword);
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
+            return Ok(new ResponseModel { Status = "Fail", Message = "User info not found." });
         }
 
         // POST api/Account/SetPassword
+        [AllowAnonymous]
         [Route("SetPassword")]
-        public async Task<IHttpActionResult> SetPassword(SetPasswordBindingModel model)
+        public IHttpActionResult SetPassword(SetPasswordBindingModel model)
         {
+            var dbContext = new GalmAppDBEntities();
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            IdentityResult result = await UserManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
-
-            if (!result.Succeeded)
+            // Identify email or phone.
+            // Set new passord.
+            var aspUserData = dbContext.AspNetUsers.Where(us => us.Email == model.EmailPhone || us.PhoneNumber == model.EmailPhone).FirstOrDefault();
+            if (aspUserData != null)
             {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
-
-        // POST api/Account/AddExternalLogin
-        [Route("AddExternalLogin")]
-        public async Task<IHttpActionResult> AddExternalLogin(AddExternalLoginBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-
-            AuthenticationTicket ticket = AccessTokenFormat.Unprotect(model.ExternalAccessToken);
-
-            if (ticket == null || ticket.Identity == null || (ticket.Properties != null
-                && ticket.Properties.ExpiresUtc.HasValue
-                && ticket.Properties.ExpiresUtc.Value < DateTimeOffset.UtcNow))
-            {
-                return BadRequest("External login failure.");
-            }
-
-            ExternalLoginData externalData = ExternalLoginData.FromIdentity(ticket.Identity);
-
-            if (externalData == null)
-            {
-                return BadRequest("The external login is already associated with an account.");
-            }
-
-            IdentityResult result = await UserManager.AddLoginAsync(User.Identity.GetUserId(),
-                new UserLoginInfo(externalData.LoginProvider, externalData.ProviderKey));
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
-
-        // POST api/Account/RemoveLogin
-        [Route("RemoveLogin")]
-        public async Task<IHttpActionResult> RemoveLogin(RemoveLoginBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            IdentityResult result;
-
-            if (model.LoginProvider == LocalLoginProvider)
-            {
-                result = await UserManager.RemovePasswordAsync(User.Identity.GetUserId());
-            }
-            else
-            {
-                result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId(),
-                    new UserLoginInfo(model.LoginProvider, model.ProviderKey));
-            }
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            return Ok();
-        }
-
-        // GET api/Account/ExternalLogin
-        [OverrideAuthentication]
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
-        [AllowAnonymous]
-        [Route("ExternalLogin", Name = "ExternalLogin")]
-        public async Task<IHttpActionResult> GetExternalLogin(string provider, string error = null)
-        {
-            if (error != null)
-            {
-                return Redirect(Url.Content("~/") + "#error=" + Uri.EscapeDataString(error));
-            }
-
-            if (!User.Identity.IsAuthenticated)
-            {
-                return new ChallengeResult(provider, this);
-            }
-
-            ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
-
-            if (externalLogin == null)
-            {
-                return InternalServerError();
-            }
-
-            if (externalLogin.LoginProvider != provider)
-            {
-                Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-                return new ChallengeResult(provider, this);
-            }
-
-            ApplicationUser user = await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider,
-                externalLogin.ProviderKey));
-
-            bool hasRegistered = user != null;
-
-            if (hasRegistered)
-            {
-                Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
-
-                ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                   OAuthDefaults.AuthenticationType);
-                ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
-                    CookieAuthenticationDefaults.AuthenticationType);
-
-                AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
-                Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
-            }
-            else
-            {
-                IEnumerable<Claim> claims = externalLogin.GetClaims();
-                ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
-                Authentication.SignIn(identity);
-            }
-
-            return Ok();
-        }
-
-        // GET api/Account/ExternalLogins?returnUrl=%2F&generateState=true
-        [AllowAnonymous]
-        [Route("ExternalLogins")]
-        public IEnumerable<ExternalLoginViewModel> GetExternalLogins(string returnUrl, bool generateState = false)
-        {
-            IEnumerable<AuthenticationDescription> descriptions = Authentication.GetExternalAuthenticationTypes();
-            List<ExternalLoginViewModel> logins = new List<ExternalLoginViewModel>();
-
-            string state;
-
-            if (generateState)
-            {
-                const int strengthInBits = 256;
-                state = RandomOAuthStateGenerator.Generate(strengthInBits);
-            }
-            else
-            {
-                state = null;
-            }
-
-            foreach (AuthenticationDescription description in descriptions)
-            {
-                ExternalLoginViewModel login = new ExternalLoginViewModel
+                if (aspUserData.ResetCode == model.ResetCode)
                 {
-                    Name = description.Caption,
-                    Url = Url.Route("ExternalLogin", new
+                    if (aspUserData.ResetCodeExpired <= DateTime.UtcNow.AddMinutes(10))
                     {
-                        provider = description.AuthenticationType,
-                        response_type = "token",
-                        client_id = Startup.PublicClientId,
-                        redirect_uri = new Uri(Request.RequestUri, returnUrl).AbsoluteUri,
-                        state = state
-                    }),
-                    State = state
-                };
-                logins.Add(login);
+                        var password = UserManager.PasswordHasher.HashPassword(model.NewPassword);
+                        aspUserData.PasswordHash = password;
+                        try
+                        {
+                            dbContext.Entry(aspUserData).State = EntityState.Modified;
+                            dbContext.SaveChanges();
+
+                            return Ok(new ResponseModel { Status = "Success", Message = "Password reset successfully" });
+                        }
+                        catch (Exception ex)
+                        {
+                            return Ok(new ResponseModel { Status = "Fail", Message = ex.Message });
+                        }
+                    }
+                    else
+                    {
+                        return Ok(new ResponseModel { Status = "Fail", Message = "Reset code expired." });
+                    }
+                }
+                else
+                {
+                    return Ok(new ResponseModel { Status = "Fail", Message = "Reset code not matched." });
+                }
             }
 
-            return logins;
+            return Ok(new ResponseModel { Status = "Fail", Message = "Email or phone invalid" });
         }
 
 
-       
 
-        //POST api/Account/RegisterExternal
-        [OverrideAuthentication]
-        [HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
-        [Route("RegisterExternal")]
-        public async Task<IHttpActionResult> RegisterExternal(RegisterExternalBindingModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //// GET api/Account/UserInfo
+        //[HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
+        //[Route("UserInfo")]
+        //public UserInfoViewModel GetUserInfo()
+        //{
+        //    ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
 
-            var info = await Authentication.GetExternalLoginInfoAsync();
-            if (info == null)
-            {
-                return InternalServerError();
-            }
+        //    return new UserInfoViewModel
+        //    {
+        //        Email = User.Identity.GetUserName(),
+        //        HasRegistered = externalLogin == null,
+        //        LoginProvider = externalLogin != null ? externalLogin.LoginProvider : null
+        //    };
+        //}
 
-            var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+        //// POST api/Account/Logout
+        //[Route("Logout")]
+        //public IHttpActionResult Logout()
+        //{
+        //    Authentication.SignOut(CookieAuthenticationDefaults.AuthenticationType);
+        //    return Ok();
+        //}
 
-            IdentityResult result = await UserManager.CreateAsync(user);
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
+        //// GET api/Account/ManageInfo?returnUrl=%2F&generateState=true
+        //[Route("ManageInfo")]
+        //public async Task<ManageInfoViewModel> GetManageInfo(string returnUrl, bool generateState = false)
+        //{
+        //    IdentityUser user = await UserManager.FindByIdAsync(User.Identity.GetUserId());
 
-            result = await UserManager.AddLoginAsync(user.Id, info.Login);
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-            return Ok();
-        }
+        //    if (user == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    List<UserLoginInfoViewModel> logins = new List<UserLoginInfoViewModel>();
+
+        //    foreach (IdentityUserLogin linkedAccount in user.Logins)
+        //    {
+        //        logins.Add(new UserLoginInfoViewModel
+        //        {
+        //            LoginProvider = linkedAccount.LoginProvider,
+        //            ProviderKey = linkedAccount.ProviderKey
+        //        });
+        //    }
+
+        //    if (user.PasswordHash != null)
+        //    {
+        //        logins.Add(new UserLoginInfoViewModel
+        //        {
+        //            LoginProvider = LocalLoginProvider,
+        //            ProviderKey = user.UserName,
+        //        });
+        //    }
+
+        //    return new ManageInfoViewModel
+        //    {
+        //        LocalLoginProvider = LocalLoginProvider,
+        //        Email = user.UserName,
+        //        Logins = logins,
+        //        ExternalLoginProviders = GetExternalLogins(returnUrl, generateState)
+        //    };
+        //}
+
+
+        //// POST api/Account/AddExternalLogin
+        //[Route("AddExternalLogin")]
+        //public async Task<IHttpActionResult> AddExternalLogin(AddExternalLoginBindingModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+
+        //    AuthenticationTicket ticket = AccessTokenFormat.Unprotect(model.ExternalAccessToken);
+
+        //    if (ticket == null || ticket.Identity == null || (ticket.Properties != null
+        //        && ticket.Properties.ExpiresUtc.HasValue
+        //        && ticket.Properties.ExpiresUtc.Value < DateTimeOffset.UtcNow))
+        //    {
+        //        return BadRequest("External login failure.");
+        //    }
+
+        //    ExternalLoginData externalData = ExternalLoginData.FromIdentity(ticket.Identity);
+
+        //    if (externalData == null)
+        //    {
+        //        return BadRequest("The external login is already associated with an account.");
+        //    }
+
+        //    IdentityResult result = await UserManager.AddLoginAsync(User.Identity.GetUserId(),
+        //        new UserLoginInfo(externalData.LoginProvider, externalData.ProviderKey));
+
+        //    if (!result.Succeeded)
+        //    {
+        //        return GetErrorResult(result);
+        //    }
+
+        //    return Ok();
+        //}
+
+        //// POST api/Account/RemoveLogin
+        //[Route("RemoveLogin")]
+        //public async Task<IHttpActionResult> RemoveLogin(RemoveLoginBindingModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    IdentityResult result;
+
+        //    if (model.LoginProvider == LocalLoginProvider)
+        //    {
+        //        result = await UserManager.RemovePasswordAsync(User.Identity.GetUserId());
+        //    }
+        //    else
+        //    {
+        //        result = await UserManager.RemoveLoginAsync(User.Identity.GetUserId(),
+        //            new UserLoginInfo(model.LoginProvider, model.ProviderKey));
+        //    }
+
+        //    if (!result.Succeeded)
+        //    {
+        //        return GetErrorResult(result);
+        //    }
+
+        //    return Ok();
+        //}
+
+        //// GET api/Account/ExternalLogin
+        //[OverrideAuthentication]
+        //[HostAuthentication(DefaultAuthenticationTypes.ExternalCookie)]
+        //[AllowAnonymous]
+        //[Route("ExternalLogin", Name = "ExternalLogin")]
+        //public async Task<IHttpActionResult> GetExternalLogin(string provider, string error = null)
+        //{
+        //    if (error != null)
+        //    {
+        //        return Redirect(Url.Content("~/") + "#error=" + Uri.EscapeDataString(error));
+        //    }
+
+        //    if (!User.Identity.IsAuthenticated)
+        //    {
+        //        return new ChallengeResult(provider, this);
+        //    }
+
+        //    ExternalLoginData externalLogin = ExternalLoginData.FromIdentity(User.Identity as ClaimsIdentity);
+
+        //    if (externalLogin == null)
+        //    {
+        //        return InternalServerError();
+        //    }
+
+        //    if (externalLogin.LoginProvider != provider)
+        //    {
+        //        Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+        //        return new ChallengeResult(provider, this);
+        //    }
+
+        //    ApplicationUser user = await UserManager.FindAsync(new UserLoginInfo(externalLogin.LoginProvider,
+        //        externalLogin.ProviderKey));
+
+        //    bool hasRegistered = user != null;
+
+        //    if (hasRegistered)
+        //    {
+        //        Authentication.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+
+        //        ClaimsIdentity oAuthIdentity = await user.GenerateUserIdentityAsync(UserManager,
+        //           OAuthDefaults.AuthenticationType);
+        //        ClaimsIdentity cookieIdentity = await user.GenerateUserIdentityAsync(UserManager,
+        //            CookieAuthenticationDefaults.AuthenticationType);
+
+        //        AuthenticationProperties properties = ApplicationOAuthProvider.CreateProperties(user.UserName);
+        //        Authentication.SignIn(properties, oAuthIdentity, cookieIdentity);
+        //    }
+        //    else
+        //    {
+        //        IEnumerable<Claim> claims = externalLogin.GetClaims();
+        //        ClaimsIdentity identity = new ClaimsIdentity(claims, OAuthDefaults.AuthenticationType);
+        //        Authentication.SignIn(identity);
+        //    }
+
+        //    return Ok();
+        //}
+
+        //// GET api/Account/ExternalLogins?returnUrl=%2F&generateState=true
+        //[AllowAnonymous]
+        //[Route("ExternalLogins")]
+        //public IEnumerable<ExternalLoginViewModel> GetExternalLogins(string returnUrl, bool generateState = false)
+        //{
+        //    IEnumerable<AuthenticationDescription> descriptions = Authentication.GetExternalAuthenticationTypes();
+        //    List<ExternalLoginViewModel> logins = new List<ExternalLoginViewModel>();
+
+        //    string state;
+
+        //    if (generateState)
+        //    {
+        //        const int strengthInBits = 256;
+        //        state = RandomOAuthStateGenerator.Generate(strengthInBits);
+        //    }
+        //    else
+        //    {
+        //        state = null;
+        //    }
+
+        //    foreach (AuthenticationDescription description in descriptions)
+        //    {
+        //        ExternalLoginViewModel login = new ExternalLoginViewModel
+        //        {
+        //            Name = description.Caption,
+        //            Url = Url.Route("ExternalLogin", new
+        //            {
+        //                provider = description.AuthenticationType,
+        //                response_type = "token",
+        //                client_id = Startup.PublicClientId,
+        //                redirect_uri = new Uri(Request.RequestUri, returnUrl).AbsoluteUri,
+        //                state = state
+        //            }),
+        //            State = state
+        //        };
+        //        logins.Add(login);
+        //    }
+
+        //    return logins;
+        //}
+
+        ////POST api/Account/RegisterExternal
+        //[OverrideAuthentication]
+        //[HostAuthentication(DefaultAuthenticationTypes.ExternalBearer)]
+        //[Route("RegisterExternal")]
+        //public async Task<IHttpActionResult> RegisterExternal(RegisterExternalBindingModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
+
+        //    var info = await Authentication.GetExternalLoginInfoAsync();
+        //    if (info == null)
+        //    {
+        //        return InternalServerError();
+        //    }
+
+        //    var user = new ApplicationUser() { UserName = model.Email, Email = model.Email };
+
+        //    IdentityResult result = await UserManager.CreateAsync(user);
+        //    if (!result.Succeeded)
+        //    {
+        //        return GetErrorResult(result);
+        //    }
+
+        //    result = await UserManager.AddLoginAsync(user.Id, info.Login);
+        //    if (!result.Succeeded)
+        //    {
+        //        return GetErrorResult(result);
+        //    }
+        //    return Ok();
+        //}
 
         protected override void Dispose(bool disposing)
         {

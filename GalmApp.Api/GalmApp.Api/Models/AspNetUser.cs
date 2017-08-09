@@ -41,6 +41,8 @@ namespace GalmApp.Api.Models
         public Nullable<System.DateTime> RegisterOn { get; set; }
         public Nullable<System.DateTime> LastLogOn { get; set; }
         public Nullable<int> LocationId { get; set; }
+        public string ResetCode { get; set; }
+        public Nullable<System.DateTime> ResetCodeExpired { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<AspNetUserClaim> AspNetUserClaims { get; set; }

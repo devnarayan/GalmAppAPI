@@ -39,4 +39,31 @@ namespace GalmApp.Api.Models
             return new ApplicationDbContext();
         }
     }
+
+    public class AspNetUserModel
+    {
+        public string Id { get; set; }
+        public string Email { get; set; }
+        public bool EmailConfirmed { get; set; }
+        //public string PasswordHash { get; set; }
+        //public string SecurityStamp { get; set; }
+        public string PhoneNumber { get; set; }
+        public bool PhoneNumberConfirmed { get; set; }
+        public bool TwoFactorEnabled { get; set; }
+        public Nullable<System.DateTime> LockoutEndDateUtc { get; set; }
+        public bool LockoutEnabled { get; set; }
+        public int AccessFailedCount { get; set; }
+        public string UserName { get; set; }
+        public string Address1 { get; set; }
+        public string Address2 { get; set; }
+        public Nullable<System.DateTime> RegisterOn { get; set; }
+        public Nullable<System.DateTime> LastLogOn { get; set; }
+        public string FullName { get; set; }
+        public string Avtar { get; set; }
+        public string WallPaper { get; set; }
+        public bool AllowNewUserNotification { get; set; }
+        public bool AllowNewOfferNotification { get; set; }
+        public string ResetCode { get; set; }
+        public Nullable<System.DateTime> ResetCodeExpired { get; set; }
+    }
 }

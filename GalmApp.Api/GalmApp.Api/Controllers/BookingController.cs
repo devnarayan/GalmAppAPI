@@ -25,7 +25,7 @@ namespace GalmApp.Api.Controllers
                 var book = AutoMapper.Mapper.Map<Booking>(model);
                 dbContext.Bookings.Add(book);
                 dbContext.SaveChanges();
-                return Ok();
+                return Ok(new ResponseModel {Data=book, Status="Success", Message="Added Booking Successfully."});
             }
         }
 
@@ -37,7 +37,7 @@ namespace GalmApp.Api.Controllers
                 var data = dbContext.Bookings.Where(st => st.UserName == userName).ToList();
                 AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>();
                 var book = AutoMapper.Mapper.Map<List<BookingViewModel>>(data);
-                return Ok(book);
+                return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Booking data vai UserName" });
             }
         }
 
@@ -49,7 +49,7 @@ namespace GalmApp.Api.Controllers
                 var data = dbContext.Bookings.Where(st => st.UserName == userName && st.BookingDate.Value >= DateTime.Now.AddDays(-days)).ToList();
                 AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>();
                 var book = AutoMapper.Mapper.Map<List<BookingViewModel>>(data);
-                return Ok(book);
+                return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Get Upcomming Booking by Username." });
             }
         }
         #endregion
@@ -63,7 +63,7 @@ namespace GalmApp.Api.Controllers
                 var data = dbContext.FAQs.ToList();
                 AutoMapper.Mapper.CreateMap<FAQ, FAQViewModel>();
                 var faq = AutoMapper.Mapper.Map<List<FAQViewModel>>(data);
-                return Ok(faq);
+                return Ok(new ResponseModel { Data=faq, Status = "Success", Message = "Get FAQ List." });
             }
         }
         #endregion
@@ -78,7 +78,7 @@ namespace GalmApp.Api.Controllers
                 var book = AutoMapper.Mapper.Map<Service>(model);
                 dbContext.Services.Add(book);
                 dbContext.SaveChanges();
-                return Ok();
+                return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Added Service Successfully." });
             }
         }
 
@@ -88,9 +88,10 @@ namespace GalmApp.Api.Controllers
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
                 var data = dbContext.Services.ToList();
-                AutoMapper.Mapper.CreateMap<Service, ServiceViewModel>();
+                AutoMapper.Mapper.CreateMap<Service, ServiceViewModel>().ForMember(d=>d.Packages, opt=>opt.MapFrom(s=>s.Packages));
+                AutoMapper.Mapper.CreateMap<Package, PackageViewModel>();
                 var book = AutoMapper.Mapper.Map<List<ServiceViewModel>>(data);
-                return Ok(book);
+                return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Get all service list." });
             }
         }
         [Route("GetServiceById")]
@@ -99,9 +100,10 @@ namespace GalmApp.Api.Controllers
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
                 var data = dbContext.Services.Where(st => st.ServiceId == serviceId).FirstOrDefault();
-                AutoMapper.Mapper.CreateMap<Service, ServiceViewModel>();
+                AutoMapper.Mapper.CreateMap<Service, ServiceViewModel>().ForMember(d => d.Packages, opt => opt.MapFrom(s => s.Packages));
+                AutoMapper.Mapper.CreateMap<Package, PackageViewModel>();
                 var book = AutoMapper.Mapper.Map<ServiceViewModel>(data);
-                return Ok(book);
+                return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Get service by service id." });
             }
         }
         #endregion
@@ -116,7 +118,7 @@ namespace GalmApp.Api.Controllers
                 var book = AutoMapper.Mapper.Map<Package>(model);
                 dbContext.Packages.Add(book);
                 dbContext.SaveChanges();
-                return Ok();
+                return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Add Package Successfully." });
             }
         }
 
@@ -140,7 +142,7 @@ namespace GalmApp.Api.Controllers
                   .ForMember(d => d.CountryCode, opt => opt.MapFrom(d => d.Location.CountryCode))
                   .ForMember(d => d.Country, opt => opt.MapFrom(d => d.Location.Country));
                 var book = AutoMapper.Mapper.Map<PackageViewModel>(data);
-                return Ok(book);
+                return Ok(new ResponseModel { Data=book, Status = "Success", Message = "Get all packages by service id." });
             }
         }
         [Route("GetPackaeById")]
@@ -163,7 +165,7 @@ namespace GalmApp.Api.Controllers
                     .ForMember(d => d.CountryCode, opt => opt.MapFrom(d => d.Location.CountryCode))
                     .ForMember(d => d.Country, opt => opt.MapFrom(d => d.Location.Country));
                 var book = AutoMapper.Mapper.Map<PackageViewModel>(data);
-                return Ok(book);
+                return Ok(new ResponseModel { Data = book, Status = "Success", Message = "Get packages by id." });
             }
         }
         #endregion
@@ -178,7 +180,7 @@ namespace GalmApp.Api.Controllers
                 var book = AutoMapper.Mapper.Map<Location>(model);
                 dbContext.Locations.Add(book);
                 dbContext.SaveChanges();
-                return Ok();
+                return Ok(new ResponseModel { Data = book, Status = "Success", Message = "Add location successfully." });
             }
         }
 
@@ -190,7 +192,7 @@ namespace GalmApp.Api.Controllers
                 var data = dbContext.Locations.ToList();
                 AutoMapper.Mapper.CreateMap<Location, LocationViewModel>();
                 var book = AutoMapper.Mapper.Map<List<LocationViewModel>>(data);
-                return Ok(book);
+                return Ok(new ResponseModel { Data = book, Status = "Success", Message = "Get all locations" });
             }
         }
         [Route("GetLocationById")]
@@ -201,7 +203,7 @@ namespace GalmApp.Api.Controllers
                 var data = dbContext.Locations.Where(st => st.LocationId == locationId).FirstOrDefault();
                 AutoMapper.Mapper.CreateMap<Location, LocationViewModel>();
                 var book = AutoMapper.Mapper.Map<LocationViewModel>(data);
-                return Ok(book);
+                return Ok(new ResponseModel { Data = book, Status = "Success", Message = "Get Location by id." });
             }
         }
         [Route("RemoveLocation")]
