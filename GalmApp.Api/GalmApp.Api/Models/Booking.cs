@@ -14,11 +14,20 @@ namespace GalmApp.Api.Models
     
     public partial class Booking
     {
-        public int BookingId { get; set; }
-        public int ServiceId { get; set; }
-        public Nullable<System.DateTime> BookingDate { get; set; }
-        public string UserName { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public Booking()
+        {
+            this.BookingPackages = new HashSet<BookingPackage>();
+        }
     
-        public virtual Service Service { get; set; }
+        public int BookingId { get; set; }
+        public string UserName { get; set; }
+        public Nullable<System.DateTime> BookingDate { get; set; }
+        public Nullable<decimal> TotalAmount { get; set; }
+        public string Remarks { get; set; }
+        public Nullable<bool> IsPaymentDone { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BookingPackage> BookingPackages { get; set; }
     }
 }

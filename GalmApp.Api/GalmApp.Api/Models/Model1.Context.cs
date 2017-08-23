@@ -25,7 +25,6 @@ namespace GalmApp.Api.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<Booking> Bookings { get; set; }
         public virtual DbSet<FAQ> FAQs { get; set; }
         public virtual DbSet<Package> Packages { get; set; }
         public virtual DbSet<Service> Services { get; set; }
@@ -35,5 +34,7 @@ namespace GalmApp.Api.Models
         public virtual DbSet<Location> Locations { get; set; }
         public virtual DbSet<PackagePrice> PackagePrices { get; set; }
         public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
+        public virtual DbSet<BookingPackage> BookingPackages { get; set; }
+        public virtual DbSet<Booking> Bookings { get; set; }
     }
 }

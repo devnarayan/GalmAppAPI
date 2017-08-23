@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Description;
 using System.Web.Routing;
 
 namespace GalmApp.Api.Controllers
@@ -16,6 +17,7 @@ namespace GalmApp.Api.Controllers
     {
         #region Booking
         [Route("AddBooking")]
+        [ResponseType(typeof(BookingViewModel))]
         public IHttpActionResult AddBooking(BookingViewModel model)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -25,29 +27,49 @@ namespace GalmApp.Api.Controllers
                 var book = AutoMapper.Mapper.Map<Booking>(model);
                 dbContext.Bookings.Add(book);
                 dbContext.SaveChanges();
+
+                if (model.Packages != null)
+                {
+                    AutoMapper.Mapper.CreateMap<BookingPackageViewModel, BookingPackage>();
+                    foreach (var pkg in model.Packages)
+                    {
+                        var package = AutoMapper.Mapper.Map<BookingPackage>(pkg);
+                        package.BookingId = book.BookingId;
+                        dbContext.BookingPackages.Add(package);
+                    }
+                    dbContext.SaveChanges();
+                }
                 return Ok(new ResponseModel {Data=book, Status="Success", Message="Added Booking Successfully."});
             }
         }
 
         [Route("GetBookingByUser")]
+        [ResponseType(typeof(List<BookingViewModel>))]
         public IHttpActionResult GetBooking(string userName)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
                 var data = dbContext.Bookings.Where(st => st.UserName == userName).ToList();
-                AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>();
+                AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>()
+                  .ForMember(d => d.Packages, opt => opt.MapFrom(d => d.BookingPackages));
+                AutoMapper.Mapper.CreateMap<BookingPackage, BookingPackageViewModel>();
+
                 var book = AutoMapper.Mapper.Map<List<BookingViewModel>>(data);
                 return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Booking data vai UserName" });
             }
         }
 
         [Route("GetBookingUpcommingByUser")]
+        [ResponseType(typeof(List<BookingViewModel>))]
         public IHttpActionResult GetBookingUpcommingByUser(string userName, int days)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
                 var data = dbContext.Bookings.Where(st => st.UserName == userName && st.BookingDate.Value >= DateTime.Now.AddDays(-days)).ToList();
-                AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>();
+                AutoMapper.Mapper.CreateMap<Booking, BookingViewModel>()
+                    .ForMember(d => d.Packages, opt => opt.MapFrom(d => d.BookingPackages));
+                AutoMapper.Mapper.CreateMap<BookingPackage, BookingPackageViewModel>();
+
                 var book = AutoMapper.Mapper.Map<List<BookingViewModel>>(data);
                 return Ok(new ResponseModel {Data=book, Status = "Success", Message = "Get Upcomming Booking by Username." });
             }
@@ -56,6 +78,7 @@ namespace GalmApp.Api.Controllers
 
         #region FAQ
         [Route("GetFAQ")]
+        [ResponseType(typeof(FAQViewModel))]
         public IHttpActionResult GetBooking(int userId, int days)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -70,6 +93,7 @@ namespace GalmApp.Api.Controllers
 
         #region Services
         [Route("AddService")]
+        [ResponseType(typeof(Service))]
         public IHttpActionResult AddService(ServiceViewModel model)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -83,6 +107,7 @@ namespace GalmApp.Api.Controllers
         }
 
         [Route("GetServices")]
+        [ResponseType(typeof(List<ServiceViewModel>))]
         public IHttpActionResult GetServices()
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -95,6 +120,7 @@ namespace GalmApp.Api.Controllers
             }
         }
         [Route("GetServiceById")]
+        [ResponseType(typeof(ServiceViewModel))]
         public IHttpActionResult GetServiceById(int serviceId)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -110,6 +136,7 @@ namespace GalmApp.Api.Controllers
 
         #region Packages
         [Route("AddPackage")]
+        [ResponseType(typeof(PackageViewModel))]
         public IHttpActionResult AddPackage(PackageViewModel model)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -123,6 +150,7 @@ namespace GalmApp.Api.Controllers
         }
 
         [Route("GetPackaes")]
+        [ResponseType(typeof(List<PackageViewModel>))]
         public IHttpActionResult GetPackaes(int serviceId, int? locationid = 0)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -146,6 +174,7 @@ namespace GalmApp.Api.Controllers
             }
         }
         [Route("GetPackaeById")]
+        [ResponseType(typeof(PackageViewModel))]
         public IHttpActionResult GetPackaeById(int packageid, int? locationid = 0)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -172,11 +201,12 @@ namespace GalmApp.Api.Controllers
 
         #region Location
         [Route("AddLocation")]
+        [ResponseType(typeof(LocationViewModel))]
         public IHttpActionResult AddLocation(LocationViewModel model)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
             {
-                AutoMapper.Mapper.CreateMap<Location, Location>();
+                AutoMapper.Mapper.CreateMap<LocationViewModel, Location>();
                 var book = AutoMapper.Mapper.Map<Location>(model);
                 dbContext.Locations.Add(book);
                 dbContext.SaveChanges();
@@ -185,6 +215,7 @@ namespace GalmApp.Api.Controllers
         }
 
         [Route("GetLocations")]
+        [ResponseType(typeof(List<LocationViewModel>))]
         public IHttpActionResult GetLocations()
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())
@@ -196,6 +227,7 @@ namespace GalmApp.Api.Controllers
             }
         }
         [Route("GetLocationById")]
+        [ResponseType(typeof(LocationViewModel))]
         public IHttpActionResult GetLocationById(int locationId)
         {
             using (GalmApp.Api.Models.GalmAppDBEntities dbContext = new Models.GalmAppDBEntities())

@@ -1,0 +1,336 @@
+@charset "utf-8";
+/* CSS Document */
+@font-face {
+	font-family: 'Calibri';
+	src: url('../fonts/Calibri.eot');
+	src: url('../fonts/Calibri.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/Calibri.woff') format('woff'),
+		url('../fonts/Calibri.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'HelveticaNeue';
+	src: url('../fonts/HelveticaNeueLight.eot');
+	src: url('../fonts/HelveticaNeueLight.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/HelveticaNeueLight.woff') format('woff'),
+		url('../fonts/HelveticaNeueLight.ttf') format('truetype');
+	font-weight: 300;
+	font-style: normal;
+}
+h1,h2,h3,h4,h5,h6{
+	color:#333;
+}
+body{
+	margin:0 auto;
+	color:#000;
+	font-size:16px;
+	line-height:26px;
+	font-family: 'Calibri';
+}
+.top-banner{
+	width:100%;
+	float:left;
+	background:#fff;
+	padding:20px 0px;
+	text-align:center;
+	background-repeat:no-repeat;
+	background-size:cover;
+}
+.carousel-caption h2, .carousel-caption p{
+	font-size:68px;
+	color:#fff;
+}
+.carousel-caption p{
+	font-size:18px;
+}
+.main-nav {
+    background:#9e0b0f;
+    padding: 20px 0;
+}
+.navbar-default{
+	background:none;
+	border:none;
+	border-radius:0px;
+}
+.navbar-brand {
+    padding: 3px 0 0;
+}
+.navbar{
+	margin:0px;}
+.navbar-collapse.collapse{
+	float:right;}
+.navbar-default .navbar-nav > li > a {
+    color: #fff ! important;
+	font-size:16px;
+}
+.dropdown-menu {
+    box-shadow: none;
+    border: none;
+    border-top-left-radius: 5px !important;
+    border-top-right-radius: 5px !important;
+}
+.dropdown-menu > li > a:hover{
+	background:none;
+}
+.navbar-default .navbar-nav > li > a , .dropdown-menu > li > a{
+	font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus, .navbar-default .navbar-nav > li > a:active{
+	color:#FFF ! important;
+}
+.nav .open > a, .nav .open > a:focus, .nav .open > a:hover {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border: medium none;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:focus, .navbar-default .navbar-nav > .open > a:hover{
+	background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border: medium none;
+}
+.nail {
+    margin-right: 3%;
+    width: 31%;
+}
+.nail:last-child {
+    margin-right: 0px;
+}
+.parler{
+	width:100%;
+	float:left;
+	text-align:center;
+	padding:50px 0px;
+}
+.parler p {
+    line-height: 22px;
+}
+.parler p , .how-work p{
+    font-size:18px;
+}
+.how-work p{
+ color:#acacac;
+}
+.bg-img {
+    color: #fff;
+    float: left;
+    font-size: 24px;
+    line-height: 38px;
+    padding: 100px 0 50px;
+    text-align: center;
+    width: 100%;
+	background: rgba(0, 0, 0, 0) url("../images/banner_2.jpg") no-repeat scroll 0 0 / cover ;
+}
+.btn.btn-red {
+    background:#9e0b0f;
+    border-radius:30px;
+    color: #fff;
+	font-size:24px;
+    padding: 10px 30px;
+	margin:15px 0px;
+}
+.how-it{
+	width:100%;
+	float:left;
+	text-align:center;
+	padding:50px 0px;
+	background:#f7f7f7;
+}
+.how-it h2{
+	font-size: 48px;
+	margin-bottom:50px;
+}
+.how-work {
+    margin-right:5%;
+    padding: 30px 20px;
+    width: 30%;
+	border-radius: 5px;
+	box-shadow: 0px 0 3px 0px #000000;
+}
+.how-work:last-child {
+    margin-right: 0;
+}
+.how-work h3, .parler h3{
+	font-size:28px;
+}
+.how-work h3, .parler h3, .parler p {
+	color: #454545;
+}
+footer{
+	width:100%;
+	float:left;
+	padding:50px 0px;
+	background:#9e0b0f;
+}
+footer h3{
+	color:#fff;
+	margin-bottom:30px;
+}
+ul.menu-list, .social {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+ul.menu-list li {
+    display: block;
+}
+ul.menu-list li a{
+	color:#FFF;
+    text-decoration:none;
+}
+.footer-logo p a, ul.social li a{
+	text-decoration:none;
+	color:#fff;
+}
+ul.social li {
+    display: inline-block;
+}
+.circle-bg {
+	height:50px;
+	width:50px;
+    background: green none repeat scroll 0 0;
+    border-radius: 100%;
+}
+ul.social li a i {
+    font-size: 20px;
+	padding: 14px 0px 0px 16px;
+}
+footer hr {
+    border-color:#d73e43;
+}
+.copyright{
+	text-align:center;
+	color:#fff;
+	padding: 30px 0 0;
+}
+.footer-logo img {
+    width: 100%;
+    margin-top: 28px;
+}
+/*/-------popup----------/*/
+.modal-content {
+	text-align: center;
+}
+.modal-content h3, .modal-content a{
+	color:#565656;
+	text-decoration:none;
+	font-family: 'Calibri';	
+}
+p.txt-left{
+	text-align:left;
+}
+.modal-content span{
+	color:#9e0b0f;
+}
+.btn.btn-login {
+    width: 100%;
+    background:#9e0b0f;
+    height: 40px;
+	color:#fff;
+	font-size:16px;
+	font-family: 'Calibri';
+}
+.modal-header, .modal-footer{
+	border:none;
+}
+input[type=text], input[type=password], input[type=number], select{
+    width:100%;
+    float: left;
+    padding: 5px 10px;
+    background: none;
+    border: none;
+	box-shadow: none;
+    border-radius: 0px;
+	margin: 0px 20px 25px 0px;
+    box-sizing: border-box;
+}
+input[type=text], input[type=password], input[type=number], select{
+	color:#565656;
+	font-size:16px;
+	border-bottom:1px solid #565459;
+	font-family: 'Calibri';	
+}
+.form-control:focus {
+	border-color:#565459; 
+	box-shadow: none;
+}
+select.selectpicker {
+    margin: 0px;
+}
+.input-group-addon {
+    background: none;
+    border: none;
+    padding: 10px 0px;
+	font-size: 16px;
+}
+/*/---------responsive------------/*/
+@media only screen and (max-width:767px){
+.navbar-default .navbar-toggle {
+    border-color: #fff;
+}
+section.top-banner img {
+    width: 100%;
+}
+.nail{
+	width:100%;
+	margin:0px;
+}
+.nail img {
+    width: 100%;
+}
+.navbar-toggle{
+	background:#fff;
+}
+.navbar-collapse.collapse {
+    float: none;
+}
+.navbar-collapse{
+	border:none;
+}
+.navbar-default .navbar-nav .open .dropdown-menu > li > a{
+	color:#fff;
+}
+.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover{
+	color:#fff;
+}
+
+.carousel-caption h2 {
+    font-size: 28px;
+}
+.carousel-caption p{
+	font-size:10px;
+	line-height:16px;
+}
+.how-work{
+	width:100%;
+	margin-bottom:40px;}
+}
+@media (min-width: 768px) and (max-width: 991px) {
+.nail{
+	width:100%;
+	margin:0px;
+}
+.how-work {
+    width: 100%;
+    margin-bottom: 30px;
+}
+.carousel-caption h2{
+	font-size:56px;
+}
+.circle-bg{
+	height:36px;
+	width:36px;
+}
+ul.social li a i {
+    padding: 8px 0px 0px 10px;
+}
+}
+@media (min-width: 992px) and (max-width: 1024px) {
+.nail{
+	width:100%;
+	margin:0px;
+}	
+}
+@media only screen and (max-width:1280px){
+
+}

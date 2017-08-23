@@ -18,6 +18,7 @@ namespace GalmApp.Api.Models
         public Package()
         {
             this.PackagePrices = new HashSet<PackagePrice>();
+            this.BookingPackages = new HashSet<BookingPackage>();
         }
     
         public int PackageId { get; set; }
@@ -26,9 +27,12 @@ namespace GalmApp.Api.Models
         public string PackageName { get; set; }
         public string Currency { get; set; }
         public Nullable<decimal> Amount { get; set; }
+        public string PackageDescription { get; set; }
     
         public virtual Service Service { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PackagePrice> PackagePrices { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<BookingPackage> BookingPackages { get; set; }
     }
 }

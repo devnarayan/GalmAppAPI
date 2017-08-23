@@ -70,9 +70,20 @@
             <PropertyRef Name="BookingId" />
           </Key>
           <Property Name="BookingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ServiceId" Type="int" Nullable="false" />
           <Property Name="UserName" Type="nvarchar" MaxLength="256" />
           <Property Name="BookingDate" Type="datetime" />
+          <Property Name="TotalAmount" Type="money" />
+          <Property Name="Remarks" Type="nvarchar" MaxLength="256" />
+          <Property Name="IsPaymentDone" Type="bit" />
+        </EntityType>
+        <EntityType Name="BookingPackage">
+          <Key>
+            <PropertyRef Name="BookingPackageId" />
+          </Key>
+          <Property Name="BookingPackageId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PackageId" Type="int" />
+          <Property Name="BookingId" Type="int" />
+          <Property Name="Amount" Type="money" />
         </EntityType>
         <EntityType Name="FAQ">
           <Key>
@@ -103,6 +114,7 @@
           <Property Name="PackageName" Type="nvarchar" MaxLength="256" />
           <Property Name="Currency" Type="varchar" MaxLength="50" />
           <Property Name="Amount" Type="money" />
+          <Property Name="PackageDescription" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="PackagePrice">
           <Key>
@@ -124,15 +136,39 @@
           <Property Name="ThumbImg" Type="nvarchar" MaxLength="1000" />
           <Property Name="BackgroundImg" Type="nvarchar" MaxLength="1000" />
         </EntityType>
-        <Association Name="FK_Booking_Service">
-          <End Role="Service" Type="Self.Service" Multiplicity="1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+        <Association Name="FK_AspNetUsers_Location">
+          <End Role="Location" Type="Self.Location" Multiplicity="0..1" />
+          <End Role="AspNetUsers" Type="Self.AspNetUsers" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="Service">
-              <PropertyRef Name="ServiceId" />
+            <Principal Role="Location">
+              <PropertyRef Name="LocationId" />
             </Principal>
-            <Dependent Role="Booking">
-              <PropertyRef Name="ServiceId" />
+            <Dependent Role="AspNetUsers">
+              <PropertyRef Name="LocationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookingPackage_Booking">
+          <End Role="Booking" Type="Self.Booking" Multiplicity="0..1" />
+          <End Role="BookingPackage" Type="Self.BookingPackage" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Booking">
+              <PropertyRef Name="BookingId" />
+            </Principal>
+            <Dependent Role="BookingPackage">
+              <PropertyRef Name="BookingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookingPackage_Package">
+          <End Role="Package" Type="Self.Package" Multiplicity="0..1" />
+          <End Role="BookingPackage" Type="Self.BookingPackage" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Package">
+              <PropertyRef Name="PackageId" />
+            </Principal>
+            <Dependent Role="BookingPackage">
+              <PropertyRef Name="PackageId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -235,14 +271,23 @@
           <EntitySet Name="AspNetUserRoles" EntityType="Self.AspNetUserRoles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AspNetUsers" EntityType="Self.AspNetUsers" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Booking" EntityType="Self.Booking" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BookingPackage" EntityType="Self.BookingPackage" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FAQ" EntityType="Self.FAQ" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Location" EntityType="Self.Location" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Package" EntityType="Self.Package" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PackagePrice" EntityType="Self.PackagePrice" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Service" EntityType="Self.Service" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK_Booking_Service" Association="Self.FK_Booking_Service">
-            <End Role="Service" EntitySet="Service" />
+          <AssociationSet Name="FK_AspNetUsers_Location" Association="Self.FK_AspNetUsers_Location">
+            <End Role="Location" EntitySet="Location" />
+            <End Role="AspNetUsers" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookingPackage_Booking" Association="Self.FK_BookingPackage_Booking">
             <End Role="Booking" EntitySet="Booking" />
+            <End Role="BookingPackage" EntitySet="BookingPackage" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookingPackage_Package" Association="Self.FK_BookingPackage_Package">
+            <End Role="Package" EntitySet="Package" />
+            <End Role="BookingPackage" EntitySet="BookingPackage" />
           </AssociationSet>
           <AssociationSet Name="FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" Association="Self.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId">
             <End Role="AspNetUsers" EntitySet="AspNetUsers" />
@@ -277,16 +322,6 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="GalmAppDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Booking">
-          <Key>
-            <PropertyRef Name="BookingId" />
-          </Key>
-          <Property Name="BookingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ServiceId" Type="Int32" Nullable="false" />
-          <Property Name="BookingDate" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="Service" Relationship="Self.FK_Booking_Service" FromRole="Booking" ToRole="Service" />
-          <Property Name="UserName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="FAQ">
           <Key>
             <PropertyRef Name="FQAId" />
@@ -308,6 +343,8 @@
           <Property Name="Amount" Type="Decimal" Precision="19" Scale="4" />
           <NavigationProperty Name="Service" Relationship="Self.FK_Package_Service" FromRole="Package" ToRole="Service" />
           <NavigationProperty Name="PackagePrices" Relationship="GalmAppDBModel.FK_PackagePrice_Package" FromRole="Package" ToRole="PackagePrice" />
+          <Property Name="PackageDescription" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="BookingPackages" Relationship="GalmAppDBModel.FK_BookingPackage_Package" FromRole="Package" ToRole="BookingPackage" />
         </EntityType>
         <EntityType Name="Service">
           <Key>
@@ -319,21 +356,8 @@
           <Property Name="Image" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Name="ThumbImg" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
           <Property Name="BackgroundImg" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Bookings" Relationship="Self.FK_Booking_Service" FromRole="Service" ToRole="Booking" />
           <NavigationProperty Name="Packages" Relationship="Self.FK_Package_Service" FromRole="Service" ToRole="Package" />
         </EntityType>
-        <Association Name="FK_Booking_Service">
-          <End Role="Service" Type="Self.Service" Multiplicity="1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Service">
-              <PropertyRef Name="ServiceId" />
-            </Principal>
-            <Dependent Role="Booking">
-              <PropertyRef Name="ServiceId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_Package_Service">
           <End Role="Service" Type="Self.Service" Multiplicity="1" />
           <End Role="Package" Type="Self.Package" Multiplicity="*" />
@@ -347,14 +371,9 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="GalmAppDBEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Bookings" EntityType="Self.Booking" />
           <EntitySet Name="FAQs" EntityType="Self.FAQ" />
           <EntitySet Name="Packages" EntityType="Self.Package" />
           <EntitySet Name="Services" EntityType="Self.Service" />
-          <AssociationSet Name="FK_Booking_Service" Association="Self.FK_Booking_Service">
-            <End Role="Service" EntitySet="Services" />
-            <End Role="Booking" EntitySet="Bookings" />
-          </AssociationSet>
           <AssociationSet Name="FK_Package_Service" Association="Self.FK_Package_Service">
             <End Role="Service" EntitySet="Services" />
             <End Role="Package" EntitySet="Packages" />
@@ -384,6 +403,20 @@
           <AssociationSet Name="AspNetUserRoles" Association="GalmAppDBModel.AspNetUserRoles">
             <End Role="AspNetRole" EntitySet="AspNetRoles" />
             <End Role="AspNetUser" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <EntitySet Name="BookingPackages" EntityType="GalmAppDBModel.BookingPackage" />
+          <AssociationSet Name="FK_AspNetUsers_Location" Association="GalmAppDBModel.FK_AspNetUsers_Location">
+            <End Role="Location" EntitySet="Locations" />
+            <End Role="AspNetUser" EntitySet="AspNetUsers" />
+          </AssociationSet>
+          <AssociationSet Name="FK_BookingPackage_Package" Association="GalmAppDBModel.FK_BookingPackage_Package">
+            <End Role="Package" EntitySet="Packages" />
+            <End Role="BookingPackage" EntitySet="BookingPackages" />
+          </AssociationSet>
+          <EntitySet Name="Bookings" EntityType="GalmAppDBModel.Booking" />
+          <AssociationSet Name="FK_BookingPackage_Booking" Association="GalmAppDBModel.FK_BookingPackage_Booking">
+            <End Role="Booking" EntitySet="Bookings" />
+            <End Role="BookingPackage" EntitySet="BookingPackages" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="AspNetRole">
@@ -425,6 +458,7 @@
           <Property Name="Country" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="AddedOn" Type="DateTime" Precision="3" />
           <NavigationProperty Name="PackagePrices" Relationship="GalmAppDBModel.FK_PackagePrice_Location" FromRole="Location" ToRole="PackagePrice" />
+          <NavigationProperty Name="AspNetUsers" Relationship="GalmAppDBModel.FK_AspNetUsers_Location" FromRole="Location" ToRole="AspNetUser" />
         </EntityType>
         <EntityType Name="PackagePrice">
           <Key>
@@ -489,6 +523,7 @@
           <NavigationProperty Name="AspNetUserClaims" Relationship="GalmAppDBModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" FromRole="AspNetUser" ToRole="AspNetUserClaim" />
           <NavigationProperty Name="AspNetUserLogins" Relationship="GalmAppDBModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" FromRole="AspNetUser" ToRole="AspNetUserLogin" />
           <NavigationProperty Name="AspNetRoles" Relationship="GalmAppDBModel.AspNetUserRoles" FromRole="AspNetUser" ToRole="AspNetRole" />
+          <NavigationProperty Name="Location" Relationship="GalmAppDBModel.FK_AspNetUsers_Location" FromRole="AspNetUser" ToRole="Location" />
         </EntityType>
         <Association Name="FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId">
           <End Type="GalmAppDBModel.AspNetUser" Role="AspNetUser" Multiplicity="1">
@@ -522,22 +557,71 @@
           <End Type="GalmAppDBModel.AspNetRole" Role="AspNetRole" Multiplicity="*" />
           <End Type="GalmAppDBModel.AspNetUser" Role="AspNetUser" Multiplicity="*" />
         </Association>
+        <EntityType Name="BookingPackage">
+          <Key>
+            <PropertyRef Name="BookingPackageId" />
+          </Key>
+          <Property Name="BookingPackageId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PackageId" Type="Int32" />
+          <Property Name="BookingId" Type="Int32" />
+          <Property Name="Amount" Type="Decimal" Precision="19" Scale="4" />
+          <NavigationProperty Name="Package" Relationship="GalmAppDBModel.FK_BookingPackage_Package" FromRole="BookingPackage" ToRole="Package" />
+          <NavigationProperty Name="Booking" Relationship="GalmAppDBModel.FK_BookingPackage_Booking" FromRole="BookingPackage" ToRole="Booking" />
+        </EntityType>
+        <Association Name="FK_AspNetUsers_Location">
+          <End Type="GalmAppDBModel.Location" Role="Location" Multiplicity="0..1" />
+          <End Type="GalmAppDBModel.AspNetUser" Role="AspNetUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Location">
+              <PropertyRef Name="LocationId" />
+            </Principal>
+            <Dependent Role="AspNetUser">
+              <PropertyRef Name="LocationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_BookingPackage_Package">
+          <End Type="GalmAppDBModel.Package" Role="Package" Multiplicity="0..1" />
+          <End Type="GalmAppDBModel.BookingPackage" Role="BookingPackage" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Package">
+              <PropertyRef Name="PackageId" />
+            </Principal>
+            <Dependent Role="BookingPackage">
+              <PropertyRef Name="PackageId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Booking">
+          <Key>
+            <PropertyRef Name="BookingId" />
+          </Key>
+          <Property Name="BookingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserName" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="BookingDate" Type="DateTime" Precision="3" />
+          <Property Name="TotalAmount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="Remarks" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="IsPaymentDone" Type="Boolean" />
+          <NavigationProperty Name="BookingPackages" Relationship="GalmAppDBModel.FK_BookingPackage_Booking" FromRole="Booking" ToRole="BookingPackage" />
+        </EntityType>
+        <Association Name="FK_BookingPackage_Booking">
+          <End Type="GalmAppDBModel.Booking" Role="Booking" Multiplicity="0..1" />
+          <End Type="GalmAppDBModel.BookingPackage" Role="BookingPackage" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Booking">
+              <PropertyRef Name="BookingId" />
+            </Principal>
+            <Dependent Role="BookingPackage">
+              <PropertyRef Name="BookingId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="GalmAppDBModelStoreContainer" CdmEntityContainer="GalmAppDBEntities">
-          <EntitySetMapping Name="Bookings">
-            <EntityTypeMapping TypeName="GalmAppDBModel.Booking">
-              <MappingFragment StoreEntitySet="Booking">
-                <ScalarProperty Name="UserName" ColumnName="UserName" />
-                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
-                <ScalarProperty Name="ServiceId" ColumnName="ServiceId" />
-                <ScalarProperty Name="BookingDate" ColumnName="BookingDate" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="FAQs">
             <EntityTypeMapping TypeName="GalmAppDBModel.FAQ">
               <MappingFragment StoreEntitySet="FAQ">
@@ -551,6 +635,7 @@
           <EntitySetMapping Name="Packages">
             <EntityTypeMapping TypeName="GalmAppDBModel.Package">
               <MappingFragment StoreEntitySet="Package">
+                <ScalarProperty Name="PackageDescription" ColumnName="PackageDescription" />
                 <ScalarProperty Name="PackageId" ColumnName="PackageId" />
                 <ScalarProperty Name="ServiceId" ColumnName="ServiceId" />
                 <ScalarProperty Name="Duration" ColumnName="Duration" />
@@ -655,6 +740,28 @@
               <ScalarProperty Name="Id" ColumnName="RoleId" />
             </EndProperty>
           </AssociationSetMapping>
+          <EntitySetMapping Name="BookingPackages">
+            <EntityTypeMapping TypeName="GalmAppDBModel.BookingPackage">
+              <MappingFragment StoreEntitySet="BookingPackage">
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+                <ScalarProperty Name="PackageId" ColumnName="PackageId" />
+                <ScalarProperty Name="BookingPackageId" ColumnName="BookingPackageId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Bookings">
+            <EntityTypeMapping TypeName="GalmAppDBModel.Booking">
+              <MappingFragment StoreEntitySet="Booking">
+                <ScalarProperty Name="IsPaymentDone" ColumnName="IsPaymentDone" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="TotalAmount" ColumnName="TotalAmount" />
+                <ScalarProperty Name="BookingDate" ColumnName="BookingDate" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="BookingId" ColumnName="BookingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

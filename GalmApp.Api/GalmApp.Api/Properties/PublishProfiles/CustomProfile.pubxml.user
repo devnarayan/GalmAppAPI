@@ -88,10 +88,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/04/2017 08:14:25</publishTime>
     </File>
     <File Include="bin/App_global.asax.compiled">
-      <publishTime>08/09/2017 23:51:23</publishTime>
+      <publishTime>08/18/2017 22:16:01</publishTime>
     </File>
     <File Include="bin/App_global.asax.dll">
-      <publishTime>08/09/2017 23:51:23</publishTime>
+      <publishTime>08/18/2017 22:16:01</publishTime>
     </File>
     <File Include="bin/AutoMapper.dll">
       <publishTime>06/04/2017 09:08:16</publishTime>
@@ -112,10 +112,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/04/2017 08:14:33</publishTime>
     </File>
     <File Include="bin/GalmApp.Api.dll">
-      <publishTime>08/09/2017 23:51:03</publishTime>
+      <publishTime>08/18/2017 22:15:41</publishTime>
     </File>
     <File Include="bin/GalmApp.Api.pdb">
-      <publishTime>08/09/2017 23:51:03</publishTime>
+      <publishTime>08/18/2017 22:15:41</publishTime>
     </File>
     <File Include="bin/Microsoft.AspNet.Identity.Core.dll">
       <publishTime>06/04/2017 08:14:44</publishTime>
@@ -409,7 +409,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/04/2017 09:51:00</publishTime>
     </File>
     <File Include="PrecompiledApp.config">
-      <publishTime>08/09/2017 23:51:10</publishTime>
+      <publishTime>08/18/2017 22:15:53</publishTime>
     </File>
     <File Include="Scripts/bootstrap.js">
       <publishTime>06/04/2017 08:13:42</publishTime>
@@ -481,7 +481,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/04/2017 08:13:23</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>08/09/2017 23:51:08</publishTime>
+      <publishTime>08/18/2017 22:15:43</publishTime>
     </File>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using System;
+using GalmApp.Api.ViewModel;
 
 namespace GalmApp.Api.Models
 {
@@ -65,5 +66,6 @@ namespace GalmApp.Api.Models
         public bool AllowNewOfferNotification { get; set; }
         public string ResetCode { get; set; }
         public Nullable<System.DateTime> ResetCodeExpired { get; set; }
+        public TokenViewModel AccessToken { get; set; }
     }
 }

@@ -13,6 +13,8 @@ namespace GalmApp.Api.ViewModel
         public string PackageName { get; set; }
         public string Currency { get; set; }
         public Nullable<decimal> Amount { get; set; }
+        public string PackageDescription { get; set; }
+
         public List<PackagePriceViewModel> LocationPrices { get; set; }
     }
     public class LocationViewModel

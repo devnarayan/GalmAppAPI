@@ -18,6 +18,7 @@ namespace GalmApp.Api.Models
         public Location()
         {
             this.PackagePrices = new HashSet<PackagePrice>();
+            this.AspNetUsers = new HashSet<AspNetUser>();
         }
     
         public int LocationId { get; set; }
@@ -28,5 +29,7 @@ namespace GalmApp.Api.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PackagePrice> PackagePrices { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<AspNetUser> AspNetUsers { get; set; }
     }
 }

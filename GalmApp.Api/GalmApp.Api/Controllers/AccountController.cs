@@ -107,6 +107,7 @@ namespace GalmApp.Api.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("Login")]
+        [ResponseType(typeof(AspNetUserModel))]
         public async Task<IHttpActionResult> Login(LoginModel model)
         {
             if (!ModelState.IsValid)
@@ -129,7 +130,12 @@ namespace GalmApp.Api.Controllers
                     {
                         dbContext.Entry(aspUserData).State = EntityState.Modified;
                         dbContext.SaveChanges();
-                        return Ok(token);
+
+                        AutoMapper.Mapper.CreateMap<AspNetUser, AspNetUserModel>();
+                        var usermodel = AutoMapper.Mapper.Map<AspNetUserModel>(aspUserData);
+
+                        usermodel.AccessToken = token;
+                        return Ok(usermodel);
                     }
                     catch (Exception ex)
                     {
@@ -214,14 +220,15 @@ namespace GalmApp.Api.Controllers
                     dbContext.Entry(aspUserData).State = EntityState.Modified;
                     dbContext.SaveChanges();
 
-                    return Ok();
+                    return Ok(new ResponseModel { Data = model, Status = "Success", Message = "Updated user info." });
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest("Error");
+                    return Ok(new ResponseModel { Data = model, Status = "Fail", Message = "Error" });
+
                 }
             }
-            return BadRequest("User not registered.");
+            return Ok(new ResponseModel { Data = model, Status = "Fail", Message = "User not registered" });
         }
 
         /// <summary>
